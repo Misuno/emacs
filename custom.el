@@ -4,7 +4,8 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   '("7964b513f8a2bb14803e717e0ac0123f100fb92160dcf4a467f530868ebaae3e"
+   '("89d9dc6f4e9a024737fb8840259c5dd0a140fd440f5ed17b596be43a05d62e67"
+     "7964b513f8a2bb14803e717e0ac0123f100fb92160dcf4a467f530868ebaae3e"
      "443e2c3c4dd44510f0ea8247b438e834188dc1c6fb80785d83ad3628eadf9294"
      "e1f4f0158cd5a01a9d96f1f7cdcca8d6724d7d33267623cc433fe1c196848554"
      "ae426fc51c58ade49774264c17e666ea7f681d8cae62570630539be3d06fd964"
@@ -26,11 +27,12 @@
      "a138ec18a6b926ea9d66e61aac28f5ce99739cf38566876dc31e29ec8757f6e2"
      default))
  '(package-selected-packages
-   '(all-the-icons bash-completion cider-hydra clj-refactor company
-                   counsel-projectile doom-modeline doom-themes eat
-                   flycheck go-mode ivy-prescient ivy-rich ligature
-                   lsp-ivy lsp-treemacs lsp-ui rainbow-delimiters
-                   setup treemacs-magit treemacs-projectile which-key)))
+   '(all-the-icons almost-mono-themes bash-completion cider-hydra
+                   clj-refactor company counsel-projectile
+                   doom-modeline doom-themes eat flycheck go-mode
+                   ivy-prescient ivy-rich ligature lsp-ivy
+                   lsp-treemacs lsp-ui rainbow-delimiters setup
+                   treemacs-magit treemacs-projectile which-key)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
