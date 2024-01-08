@@ -64,7 +64,7 @@ This is particularly useful under Mac OSX, where GUI apps are not started from a
 
 (menu-bar-mode -1)
 (tool-bar-mode -1)
-;: (scroll-bar-mode -1)
+                                        ;: (scroll-bar-mode -1)
 (tooltip-mode -1)
 (set-fringe-mode 10)
 (setq inhibit-startup-screen t)
@@ -80,29 +80,6 @@ This is particularly useful under Mac OSX, where GUI apps are not started from a
 
 ;; Line numbes
 (global-display-line-numbers-mode)
-
-
-
-(setq ido-enable-flex-matching t)
-(setq ido-everywhere t)
-;; (setq ido-use-filename-at-point 'guess)
-(setq ido-create-new-buffer 'always)
-(ido-mode 1)
-(ido-everywhere 1)
-
-(setup (:package ido-completing-read+))
-(ido-ubiquitous-mode 1)
-
-(setup (:package smex))
-(defadvice smex (around space-inserts-hyphen activate compile)
-  (let ((ido-cannot-complete-command 
-         `(lambda ()
-            (interactive)
-            (if (string= " " (this-command-keys))
-                (insert ?-)
-              (funcall ,ido-cannot-complete-command)))))
-    ad-do-it))
-
 
 
 ;; Ligateures
@@ -156,6 +133,24 @@ This is particularly useful under Mac OSX, where GUI apps are not started from a
 
 (treemacs)
 
+
+(use-package counsel
+  :bind (("C-M-j" . 'counsel-switch-buffer)
+         :map minibuffer-local-map)
+  :custom
+  (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
+  :config
+  (counsel-mode 1))
+
+(setup (:package projectile)
+  (projectile-mode +1)
+  (:bind "s-p" projectile-command-map
+         "C-c p" projectile-command-map))
+
+;; counsel-projectile integrates projectile with
+;; counsel's browse-and-select UI
+(setup (:package counsel-projectile))
+
 ;; shell scripts
 (setq-default sh-basic-offset 2
               sh-indentation 2)
@@ -168,13 +163,63 @@ This is particularly useful under Mac OSX, where GUI apps are not started from a
                                                "backups"))))
 (setq auto-save-default nil)
 
-(use-package all-the-icons)
+;; NERD ICONS
+(use-package nerd-icons
+  :custom
+  ;; The Nerd Font you want to use in GUI
+  ;; "Symbols Nerd Font Mono" is the default and is recommended
+  ;; but you can use any other Nerd Font if you want
+  (nerd-icons-font-family "Symbols Nerd Font Mono"))
+
+
+;;;;;;;;;;
+;; IVY ;;
+;;;;;;;;
+
+(use-package ivy
+  :diminish
+  :bind (
+	       ;; ("C-s" . swiper)
+         :map ivy-minibuffer-map
+         ;; ("TAB" . ivy-alt-done)
+         ("C-l" . ivy-alt-done)
+         ("C-j" . ivy-next-line)
+         ("C-k" . ivy-previous-line)
+         :map ivy-switch-buffer-map
+         ("C-k" . ivy-previous-line)
+         ("C-l" . ivy-done)
+         ("C-d" . ivy-switch-buffer-kill)
+         :map ivy-reverse-i-search-map
+         ("C-k" . ivy-previous-line)
+         ("C-d" . ivy-reverse-i-search-kill))
+  :config
+  (ivy-mode 1))
+
+(setq ivy-initial-inputs-alist nil)
+
+(use-package ivy-rich
+  :init (ivy-rich-mode 1))
+
+(use-package ivy-prescient
+  :after counsel
+  :custom
+  (ivy-prescient-enable-filtering nil)
+  :config
+  ;; Uncomment the following line to have sorting remembered across sessions!
+	(prescient-persist-mode 1)
+  (ivy-prescient-mode 1))
+
+
 
 
 ;; DEVELOPMENT
 (use-package magit)
 
 (use-package lsp-mode)
+
+(use-package lsp-treemacs)
+
+(use-package lsp-ui)
 
 (use-package flycheck)
 
@@ -184,7 +229,10 @@ This is particularly useful under Mac OSX, where GUI apps are not started from a
 (setq company-minimum-prefix-length 1)
 (add-hook 'after-init-hook 'global-company-mode)
 
-;; GO
+;;;;;;;;
+;; GO ;;
+;;;;;;;;
+
 (setq-default 
  tab-width 2
  standard-indent 2
@@ -193,6 +241,7 @@ This is particularly useful under Mac OSX, where GUI apps are not started from a
 (setup (:package yasnippet))
 
 (add-hook 'go-mode-hook #'lsp-deferred)
+(add-hook 'go-mode-hook 'enable-paredit-mode)
 
 ;; Set up before-save hooks to format buffer and add/delete imports.
 ;; Make sure you don't have other gofmt/goimports hooks enabled.
@@ -210,6 +259,10 @@ This is particularly useful under Mac OSX, where GUI apps are not started from a
 ;; also: https://emacs-lsp.github.io/lsp-mode/
 (setup (:package lsp-mode lsp-ui lsp-treemacs)
   (:bind "M-<f7>" lsp-find-references))
+
+;;;;;;;;;;;;;;
+;; CLOJURE ;;
+;;;;;;;;;;;;
 
 ;; clojure-mode is (naturally) the major mode for editing
 ;; Clojure and ClojureScript. subword-mode allows words
@@ -240,7 +293,7 @@ This is particularly useful under Mac OSX, where GUI apps are not started from a
 ;; see https://docs.cider.mx/cider/usage/code_completion.html
 (setup (:package company)
   (:hook-into cider-mode
-	      cider-repl-mode))
+	            cider-repl-mode))
 
 ;; hydra provides a nice looking menu for commands
 ;; to see what's available, use M-x and the prefix cider-hydra
@@ -281,15 +334,14 @@ This is particularly useful under Mac OSX, where GUI apps are not started from a
   (interactive)
   (cider-repl-set-ns "user"))
 
-
 ;; Paredit
 (setup (:package paredit)
   (:hook-into emacs-lisp-mode
-	      eval-expression-minibuffer-setup
-	      ielm-mode
-	      lisp-mode
-	      lisp-interaction-mode
-	      scheme-mode))
+	            eval-expression-minibuffer-setup
+	            ielm-mode
+	            lisp-mode
+	            lisp-interaction-mode
+	            scheme-mode))
 
 (autoload 'enable-paredit-mode "paredit"
   "Turn on pseudo-structural editing of Lisp code."
@@ -307,118 +359,37 @@ This is particularly useful under Mac OSX, where GUI apps are not started from a
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
 
-;;;;;;;;
-;; F# ;;
-;;;;;;;;
-(use-package eglot
-  :ensure t)
+;;;;;;;;;;;;;;
+;; FLUTTER ;;
+;;;;;;;;;;;;
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+(package-initialize)
 
-(use-package fsharp-mode
-  :defer t
-  :ensure t)
+(setq package-selected-packages 
+  '(dart-mode lsp-mode lsp-dart lsp-treemacs flycheck company
+    ;; Optional packages
+    lsp-ui company hover))
 
-(use-package eglot-fsharp
-  :ensure t)
+(when (cl-find-if-not #'package-installed-p package-selected-packages)
+  (package-refresh-contents)
+  (mapc #'package-install package-selected-packages))
 
-(setq-default fsharp-indent-offset 2)
+(add-hook 'dart-mode-hook 'lsp)
+
+(setq gc-cons-threshold (* 100 1024 1024)
+      read-process-output-max (* 1024 1024))
+
 
 ;; OTHER
+
+;; terminal
+(setup (:package eat))
+
 ;; Bash completion
 (use-package bash-completion)
 (bash-completion-setup)
 
-
-;; LATEX export for or
-(setq org-latex-pdf-process
-          '("latexmk -pdflatex='pdflatex -interaction nonstopmode' -pdf -bibtex -f %f"))
-
-
-
-    (unless (boundp 'org-latex-classes)
-      (setq org-latex-classes nil))
-
-    (add-to-list 'org-latex-classes
-                 '("ethz"
-                   "\\documentclass[a4paper,11pt,titlepage]{memoir}
-    \\usepackage[utf8]{inputenc}
-    \\usepackage[T1]{fontenc}
-    \\usepackage{fixltx2e}
-    \\usepackage{graphicx}
-    \\usepackage{longtable}
-    \\usepackage{float}
-    \\usepackage{wrapfig}
-    \\usepackage{rotating}
-    \\usepackage[normalem]{ulem}
-    \\usepackage{amsmath}
-    \\usepackage{textcomp}
-    \\usepackage{marvosym}
-    \\usepackage{wasysym}
-    \\usepackage{amssymb}
-    \\usepackage{hyperref}
-    \\usepackage{mathpazo}
-    \\usepackage{color}
-    \\usepackage{enumerate}
-    \\definecolor{bg}{rgb}{0.95,0.95,0.95}
-    \\tolerance=1000
-          [NO-DEFAULT-PACKAGES]
-          [PACKAGES]
-          [EXTRA]
-    \\linespread{1.1}
-    \\hypersetup{pdfborder=0 0 0}"
-                   ("\\chapter{%s}" . "\\chapter*{%s}")
-                   ("\\section{%s}" . "\\section*{%s}")
-                   ("\\subsection{%s}" . "\\subsection*{%s}")
-                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                   ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                   ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-
-
-    (add-to-list 'org-latex-classes
-                 '("article"
-                   "\\documentclass[11pt,a4paper]{article}
-    \\usepackage[utf8]{inputenc}
-    \\usepackage[T1]{fontenc}
-    \\usepackage{fixltx2e}
-    \\usepackage{graphicx}
-    \\usepackage{longtable}
-    \\usepackage{float}
-    \\usepackage{wrapfig}
-    \\usepackage{rotating}
-    \\usepackage[normalem]{ulem}
-    \\usepackage{amsmath}
-    \\usepackage{textcomp}
-    \\usepackage{marvosym}
-    \\usepackage{wasysym}
-    \\usepackage{amssymb}
-    \\usepackage{hyperref}
-    \\usepackage{mathpazo}
-    \\usepackage{color}
-    \\usepackage{enumerate}
-    \\definecolor{bg}{rgb}{0.95,0.95,0.95}
-    \\tolerance=1000
-          [NO-DEFAULT-PACKAGES]
-          [PACKAGES]
-          [EXTRA]
-    \\linespread{1.1}
-    \\hypersetup{pdfborder=0 0 0}"
-                   ("\\section{%s}" . "\\section*{%s}")
-                   ("\\subsection{%s}" . "\\subsection*{%s}")
-                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                   ("\\paragraph{%s}" . "\\paragraph*{%s}")))
-
-
-    (add-to-list 'org-latex-classes '("ebook"
-                                      "\\documentclass[11pt, oneside]{memoir}
-    \\setstocksize{9in}{6in}
-    \\settrimmedsize{\\stockheight}{\\stockwidth}{*}
-    \\setlrmarginsandblock{2cm}{2cm}{*} % Left and right margin
-    \\setulmarginsandblock{2cm}{2cm}{*} % Upper and lower margin
-    \\checkandfixthelayout
-    % Much more laTeX code omitted
-    "
-                                      ("\\chapter{%s}" . "\\chapter*{%s}")
-                                      ("\\section{%s}" . "\\section*{%s}")
-                                      ("\\subsection{%s}" . "\\subsection*{%s}")))
 
 ;; KEYBINDINGS
 
@@ -441,4 +412,4 @@ This is particularly useful under Mac OSX, where GUI apps are not started from a
 ;; M is set to CMD (much easier)
 (setq mac-option-modifier nil
       mac-command-modifier 'meta
-      x-select-enable-clipboard t)
+      x-t-enable-clipboard t)
