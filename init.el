@@ -362,10 +362,6 @@ This is particularly useful under Mac OSX, where GUI apps are not started from a
 ;;;;;;;;;;;;;;
 ;; FLUTTER ;;
 ;;;;;;;;;;;;
-(require 'package)
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
-(package-initialize)
-
 (setq package-selected-packages 
   '(dart-mode lsp-mode lsp-dart lsp-treemacs flycheck company
     ;; Optional packages
