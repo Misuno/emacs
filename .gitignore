@@ -1,0 +1,12 @@
+/.cache/
+/.dap-breakpoints
+/.lsp-session-v1
+/auto-save-list/
+/backups/
+/cider-history
+/eln-cache/
+/elpa/
+/places
+/projectile-bookmarks.eld
+/transient/
+/var/
