@@ -3,9 +3,20 @@
 ;; (load-theme 'modus-vivendi-tritanopia t)
 (setup (:package sourcerer-theme))
 (load-theme 'sourcerer t)
-(add-to-list 'default-frame-alist '(font . "Iosevka 12" ))
-;; (add-to-list 'default-frame-alist '(font . "Cascadia Code 12" ))
 
+
+;; Fira code font 
+(use-package fira-code-mode
+  :custom (fira-code-mode-disabled-ligatures '("[]" "x")) ; ligatures you don't want
+  :config
+  (fira-code-mode-set-font)
+  (global-fira-code-mode)
+  :hook prog-mode)                                         ; mode to enable fira-code-mode in
+
+;; (add-to-list 'default-frame-alist '(font . "Iosevka 12" ))
+;; (add-to-list 'default-frame-alist '(font . "Cascadia Code 12" ))
+(add-to-list 'default-frame-alist '(font . "Fira Code 12" ))
+;; (add-to-list 'default-frame-alist '(font . "JetBrains mono 12" ))
 
 ;; DOOM MODELINE
 (use-package doom-modeline
