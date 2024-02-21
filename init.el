@@ -1,72 +1,45 @@
-;;; Mu setup
+;; -*- lexical-binding: t; -*-
+;; Emacs comes with package.el for installing packages.
+;; Try M-x list-packages to see what's available.
+(require 'package)
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                         ("melpa-stable" . "https://stable.melpa.org/packages/")
+                         ("elpa" . "https://elpa.gnu.org/packages/")))
+(package-initialize)
 
-(add-to-list 'load-path "~/.emacs.d/my")
+;; setup.el provides a macro for configuration patterns
+;; it makes package installation and config nice and tidy!
+;; https://www.emacswiki.org/emacs/SetupEl
+(if (package-installed-p 'setup)
+    nil
+  (if (memq 'setup package-archive-contents)
+      nil
+    (package-refresh-contents))
+  (package-install 'setup))
+(require 'setup)
 
-(load "path.el")
+;; All other features are loaded one by one from
+;; the customizations directory. Read those files
+;; to find out what they do.
+(add-to-list 'load-path "~/.emacs.d/customizations")
 
-(load "packages.el")
+(defvar addons
+  '("ui.el"
+    "navigation.el"
+    "projects.el"
+    "git.el"
+    "filetree.el"
+    "editing.el"
+    "elisp-editing.el"
+    "setup-clojure.el"
+    "setup-js.el"
+    "shell-integration.el"))
 
-;; CUSTOMS
-(setq custom-file "custom.el")
-(load custom-file)
+(dolist (x addons)
+  (load x))
 
-(load "interface.el")
+;; Make gc pauses faster by decreasing the threshold.
+(setq gc-cons-threshold (* 2 1000 1000))
 
-;; DEVELOPMENT
-(load "dev_common.el")
-
-;;;;;;;;
-;; GO ;;
-;;;;;;;;
-(load "go_setup.el")
-
-;;;;;;;;;;;;;;
-;; CLOJURE ;;
-;;;;;;;;;;;;
-(load "clojure_setup.el")
-
-;;;;;;;;;;;;;;
-;; FLUTTER ;;
-;;;;;;;;;;;;
-(load "flutter_setup.el")
-
-;;;;;;;;
-;; F# ;;
-;;;;;;;;
-(load "fsharp_setup.el")
-
-;; OTHER
-
-;; terminal
-(setup (:package eat))
-
-;; Bash completion
-(use-package bash-completion)
-(bash-completion-setup)
-
-
-;; KEYBINDINGS
-(global-set-key (kbd "M-/") 'hippie-expand)
-
-
-;; NEWLINE
-(defun end-of-line-and-indented-new-line ()
-  (interactive)
-  (end-of-line)
-  (newline-and-indent))
-
-(global-set-key (kbd "<S-space>") 'end-of-line-and-indented-new-line)
-
-
-(global-set-key (kbd "C-x C-k") 'kill-buffer)
-(global-set-key (kbd "<M-return>") 'cider-pprint-eval-last-sexp)
-
-;; Make ESC quit prompts
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-
-;; M is set to CMD (much easier)
-(setq mac-option-modifier nil
-      mac-command-modifier 'meta
-      x-t-enable-clipboard t)
-
-(global-set-key (kbd "C-S-i") 'lsp-format-buffer)
+(setq custom-file (concat user-emacs-directory "custom.el"))
+(load custom-file 'noerror)
