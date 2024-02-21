@@ -1,9 +1,16 @@
-2;; INTERFACE
-;; (require 'modus-themes)
+;; INTERFACE
+;; (use-package modus-themes
+;;   :ensure t)
 ;; (load-theme 'modus-vivendi-tritanopia t)
-(setup (:package sourcerer-theme))
-(load-theme 'sourcerer t)
 
+;; (setup (:package sourcerer-theme))
+;; (load-theme 'sourcerer t)
+
+(add-hook 'org-mode-hook  'org-indent-mode)
+
+;; (use-package spacemacs-theme
+;;   :ensure t)
+;; (load-theme 'spacemacs-dark t)
 
 ;; Fira code font 
 (use-package fira-code-mode
@@ -13,10 +20,8 @@
   (global-fira-code-mode)
   :hook prog-mode)                                         ; mode to enable fira-code-mode in
 
-;; (add-to-list 'default-frame-alist '(font . "Iosevka 12" ))
-;; (add-to-list 'default-frame-alist '(font . "Cascadia Code 12" ))
-(add-to-list 'default-frame-alist '(font . "Fira Code 12" ))
-;; (add-to-list 'default-frame-alist '(font . "JetBrains mono 12" ))
+(add-to-list 'default-frame-alist '(font . "Iosevka ss16 12" ))
+;; (add-to-list 'default-frame-alist '(font . "Fira Code 12" ));; (add-to-list 'default-frame-alist '(font . "JetBrains mono 12" ))
 
 ;; DOOM MODELINE
 (use-package doom-modeline
@@ -25,15 +30,17 @@
   :custom ((doom-modeline-height 28)))
 
 
-
 (menu-bar-mode -1)
 (tool-bar-mode -1)
-                                        ;: (scroll-bar-mode -1)
+;; (scroll-bar-mode -1)
+
 (tooltip-mode -1)
 (set-fringe-mode 10)
 (setq inhibit-startup-screen t)
 (setq visible-bell t)
 (defalias 'yes-or-no-p 'y-or-n-p)
+(global-visual-line-mode)
+
 
 ;; When you visit a file, point goes to the last place where it
 ;; was when you previously visited the same file.
@@ -110,7 +117,7 @@
 (use-package ivy
   :diminish
   :bind (
-	       ;; ("C-s" . swiper)
+	 ;; ("C-s" . swiper)
          :map ivy-minibuffer-map
          ;; ("TAB" . ivy-alt-done)
          ("C-l" . ivy-alt-done)
@@ -137,7 +144,7 @@
   (ivy-prescient-enable-filtering nil)
   :config
   ;; Uncomment the following line to have sorting remembered across sessions!
-	(prescient-persist-mode 1)
+  (prescient-persist-mode 1)
   (ivy-prescient-mode 1))
 
 
@@ -147,3 +154,25 @@
          ("C-h v" . helpful-variable)
          ("C-h k" . helpful-key)
          ("C-h x" . helpful-command)))
+
+
+(use-package all-the-icons
+  :ensure t)
+
+(use-package doom-themes
+  :ensure t
+  :config
+  ;; Global settings (defaults)
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  (load-theme 'doom-one t)
+
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
+  ;; Enable custom neotree theme (all-the-icons must be installed!)
+  (doom-themes-neotree-config)
+  ;; or for treemacs users
+  (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
+  (doom-themes-treemacs-config)
+  ;; Corrects (and improves) org-mode's native fontification.
+  (doom-themes-org-config))

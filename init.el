@@ -55,7 +55,7 @@
   (end-of-line)
   (newline-and-indent))
 
-(global-set-key (kbd "<C-j>") 'end-of-line-and-indented-new-line)
+(global-set-key (kbd "<S-space>") 'end-of-line-and-indented-new-line)
 
 
 (global-set-key (kbd "C-x C-k") 'kill-buffer)
