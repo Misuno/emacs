@@ -74,3 +74,4 @@
   (interactive)
   (cider-repl-set-ns "user"))
 
+(keymap-global-set "M-RET" 'cider-pprint-eval-last-sexp)
