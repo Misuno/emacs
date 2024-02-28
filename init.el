@@ -1,6 +1,6 @@
-;;; Mu setup
+;;; My setup
 
-(add-to-list 'load-path "~/.emacs.d/my")
+(add-to-list 'load-path "~/.config/emacs/my")
 
 (load "path.el")
 

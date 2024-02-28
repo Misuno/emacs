@@ -20,7 +20,8 @@
   (global-fira-code-mode)
   :hook prog-mode)                                         ; mode to enable fira-code-mode in
 
-(add-to-list 'default-frame-alist '(font . "Iosevka ss16 12" ))
+(set-face-attribute 'default nil :height 130)
+(set-face-attribute 'default t :font "Iosevka NFM")
 ;; (add-to-list 'default-frame-alist '(font . "Fira Code 12" ));; (add-to-list 'default-frame-alist '(font . "JetBrains mono 12" ))
 
 ;; DOOM MODELINE
