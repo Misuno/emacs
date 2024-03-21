@@ -1,14 +1,11 @@
 /.cache/
-/.dap-breakpoints
-/.lsp-session-v1
 /auto-save-list/
 /backups/
 /cider-history
 /eln-cache/
 /elpa/
+/ido.last
 /places
 /projectile-bookmarks.eld
+/smex-items
 /transient/
-/var/
-/eshell/
-/workspace/

@@ -17,19 +17,42 @@
 ;; INTERFACE ;;
 ;;;;;;;;;;;;;;;
 
-(menu-bar-mode t)
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
-(tooltip-mode -1)
-(set-fringe-mode 10)
-(setq inhibit-startup-screen t)
-(setq visible-bell t)
-(defalias 'yes-or-no-p 'y-or-n-p)
-(global-visual-line-mode)
-(save-place-mode 1)
-(setq display-line-numbers-type 'relative) 
-(global-display-line-numbers-mode)
-(blink-cursor-mode 0)
+(use-package emacs
+  :config
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (tooltip-mode -1)
+  (set-fringe-mode 10)
+  (setq inhibit-startup-screen t)
+  (setq visible-bell t)
+  (defalias 'yes-or-no-p 'y-or-n-p)
+  (global-visual-line-mode)
+  (save-place-mode 1)
+  ;; (setq display-line-numbers-type 'relative) 
+  (global-display-line-numbers-mode)
+  (blink-cursor-mode 0)
+
+  ;; When you visit a file, point goes to the last place where it
+  ;; was when you previously visited the same file.
+  ;; http://www.emacswiki.org/emacs/SavePlace
+  (save-place-mode 1)
+  :custom
+  ;; keep track of saved places in ~/.emacs.d/places
+  (save-place-file (concat user-emacs-directory "places"))
+
+  ;; Don't use hard tabs
+  (indent-tabs-mode nil)
+  (tab-width 4)
+  ;; shell scripts
+  (sh-basic-offset 2)
+  (sh-indentation 2)
+  ;; Emacs can automatically create backup files. This tells Emacs to
+;; put all backups in ~/.emacs.d/backups. More info:
+;; http://www.gnu.org/software/emacs/manual/html_node/elisp/Backup-Files.html
+  (backup-directory-alist `(("." . ,(concat user-emacs-directory
+                                               "backups"))))
+  (auto-save-default nil))
 
 
 ;; Don't show line numbers in certain modes
@@ -40,7 +63,7 @@
                 eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-(setq def-font "Iosevka ss16")
+(setq def-font "Iosevka Nerd Font Propo")
 
 (defun my-font (size)
   (format "%s %i" def-font size))
@@ -48,63 +71,72 @@
 ;; Set font
 (add-to-list 'default-frame-alist `(font . ,(my-font 13)))
 
-;; Set theme
+(use-package modus-themes
+  :ensure t
+  :defer nil
+  :bind
+  ([f5] . modus-themes-toggle)
+  
+  :custom
+  (modus-themes-italic-constructs t)
+  (modus-themes-bold-constructs t)
+  (modus-themes-disable-other-themes t)
+  (modus-themes-to-toggle '(modus-vivendi-tinted modus-operandi-tinted))
+  
+  :config
+  (mapc #'disable-theme custom-enabled-themes)
+  (load-theme 'modus-vivendi-tinted :no-confirm))
 
-;; (setup (:package atom-one-dark-theme)
-;;   (load-theme 'atom-one-dark t))
 
-;; (setup (:package monokai-pro-theme)
-;;   (load-theme 'monokai-pro t))
 
-(setup (:package spacemacs-theme)
-  (load-theme 'spacemacs-dark t))
+(use-package solaire-mode
+  :defer nil 
+  :config
+  (solaire-global-mode +1))
 
-;; When you visit a file, point goes to the last place where it
-;; was when you previously visited the same file.
-;; http://www.emacswiki.org/emacs/SavePlace
-(save-place-mode 1)
-;; keep track of saved places in ~/.emacs.d/places
-(setq save-place-file (concat user-emacs-directory "places"))
-
-;; Don't use hard tabs
-(setq-default indent-tabs-mode nil)
-(setq-default tab-width 4)
-;; shell scripts
-(setq-default sh-basic-offset 2
-              sh-indentation 2)
-
-;; Emacs can automatically create backup files. This tells Emacs to
-;; put all backups in ~/.emacs.d/backups. More info:
-;; http://www.gnu.org/software/emacs/manual/html_node/elisp/Backup-Files.html
-(setq backup-directory-alist `(("." . ,(concat user-emacs-directory
-                                               "backups"))))
-(setq auto-save-default nil)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; PACKAGES INTERFACE ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
+(use-package ido
+  :custom
+  (ido-enable-flex-matching t)
+  (ido-everywhere nil)
+  (ido-use-filename-at-point 'guess)
+  (ido-create-new-buffer 'always)
+  (ido-file-extensions-order '(".clj" ".go" ".edn" ".templ" ".org" ".txt" ".py" ".emacs" ".xml" ".el" ".ini" ".cfg" ".cnf"))
+  (ido-ignore-extensions t)
+  :config
+  (setq-default confirm-nonexistent-file-or-buffer nil)
+  (ido-mode 1))
+
+
 ;; NERD ICONS
-(setup (:package nerd-icons)
-  ;; (:option nerd-icons-font-family "Iosevka ss16")
-  )
+(use-package nerd-icons
+  :custom
+  (nerd-icons-font-family def-font))
+
+(use-package smex
+  :config
+  (smex-initialize)
+
+  :bind
+  ("M-x" . smex)
+  ("M-X" . smex-major-mode-commands)
+  ("<menu>" . smex))
+
 
 ;; DOOM MODELINE
-(setup (:package doom-modeline)
-  (:option doom-modeline-height 24)
+(use-package doom-modeline
+  :custom
+  (doom-modeline-height 24)
+  :config
   (doom-modeline-mode 1))
-
-;; Fira code font 
-;; (setup (:package fira-code-mode)
-;;   (:option fira-code-mode-disabled-ligatures '("#(" "[]" "x")) ; ligatures you don't want
-;;   (:hook-into prog-mode)
-;;   (fira-code-mode-set-font)
-;;   (global-fira-code-mode))                                         ; mode to enable fira-code-mode in
 
 ;; This assumes you've installed the package via MELPA.
 (use-package ligature
-  :ensure t
   :config
   ;; Enable the "www" ligature in every possible major mode
   (ligature-set-ligatures 't '("www"))
@@ -129,97 +161,48 @@
   ;; per mode with `ligature-mode'.
   (global-ligature-mode t))
 
-(setup (:package which-key)
+(use-package which-key
+  :defer t
+  :config
   (which-key-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; PACKAGES INTERFACE ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(setup (:package projectile)
+(use-package golden-ratio
+  :config
+  (golden-ratio-mode 1))
+
+
+(use-package vertico-posframe
+  :config
+  (vertico-posframe-mode 1))
+
+(setq vertico-multiform-commands
+      '((consult-line
+         posframe
+         (vertico-posframe-poshandler . posframe-poshandler-frame-top-center)
+         (vertico-posframe-border-width . 10)
+         ;; NOTE: This is useful when emacs is used in both in X and
+         ;; terminal, for posframe do not work well in terminal, so
+         ;; vertico-buffer-mode will be used as fallback at the
+         ;; moment.
+         (vertico-posframe-fallback-mode . vertico-buffer-mode))
+        (t posframe)))
+(vertico-multiform-mode 1)
+
+(use-package projectile
+  :config
   (projectile-mode +1)
-  (:bind "C-c f" projectile--find-file)
-  ;; Recommended keymap prefix on macOS
-  ;; (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
-  ;; Recommended keymap prefix on Windows/Linux
-  ;; (define-key projectile-mode-map (kbd "C-M-p") 'projectile-command-map)
-  )
-
-(setup (:package ido)
-  (:option ido-enable-flex-matching t
-           ido-everywhere nil
-           ido-use-filename-at-point 'guess
-           ido-create-new-buffer 'always
-           ido-file-extensions-order '(".clj" ".go" ".edn" ".templ" ".org" ".txt" ".py" ".emacs" ".xml" ".el" ".ini" ".cfg" ".cnf")
-           ido-ignore-extensions t)
-  (setq-default confirm-nonexistent-file-or-buffer nil)
-  (ido-mode 1))
-
-(setup (:package smex)
-  (:global "M-x" smex
-           "<menu>" smex
-           "M-X" smex-major-mode-commands)
-  (smex-initialize))
-
-(defadvice smex (around space-inserts-hyphen activate compile)
-  (let ((ido-cannot-complete-command 
-         `(lambda ()
-            (interactive)
-            (if (string= " " (this-command-keys))
-                (insert ?-)
-              (funcall ,ido-cannot-complete-command)))))
-    ad-do-it))
-
-;; (defadvice ido-set-matches-1 (around ido-smex-acronym-matches activate)
-;;   "Filters ITEMS by setting acronynms first."
-;;   (if (and (fboundp 'smex-already-running) (smex-already-running) (> (length ido-text) 1))
-
-;;       ;; We use a hash table for the matches, <type> => <list of items>, where
-;;       ;; <type> can be one of (e.g. `ido-text' is "ff"):
-;;       ;; - strict: strict acronym match (i.e. "^f[^-]*-f[^-]*$");
-;;       ;; - relaxed: for relaxed match (i.e. "^f[^-]*-f[^-]*");
-;;       ;; - start: the text start with (i.e. "^ff.*");
-;;       ;; - contains: the text contains (i.e. ".*ff.*");
-;;       (let ((regex (concat "^" (mapconcat 'char-to-string ido-text "[^-]*-")))
-;;             (matches (make-hash-table :test 'eq)))
-
-;;         ;; Filtering
-;;         (dolist (item items)
-;;           (let ((key))
-;;             (cond
-;;              ;; strict match
-;;              ((string-match (concat regex "[^-]*$") item)
-;;               (setq key 'strict))
-
-;;              ;; relaxed match
-;;              ((string-match regex item)
-;;               (setq key 'relaxed))
-
-;;              ;; text that start with ido-text
-;;              ((string-match (concat "^" ido-text) item)
-;;               (setq key 'start))
-
-;;              ;; text that contains ido-text
-;;              ((string-match ido-text item)
-;;               (setq key 'contains)))
-
-;;             (when key
-;;               ;; We have a winner! Update its list.
-;;               (let ((list (gethash key matches ())))
-;;                 (puthash key (push item list) matches)))))
-
-;;         ;; Finally, we can order and return the results
-;;         (setq ad-return-value (append (gethash 'strict matches)
-;;                                       (gethash 'relaxed matches)
-;;                                       (gethash 'start matches)
-;;                                       (gethash 'contains matches))))
-
-;;     ;; ...else, run the original ido-set-matches-1
-;;     ad-do-it))
+  :bind
+  ("C-c f" . projectile--find-file)
+  ("C-M-p" . projectile-command-map))
 
 ;; Expand-region - expand selection
-(setup (:package expand-region)
-  (:global "C-=" er/expand-region))
+(use-package expand-region
+  :defer t 
+  :bind ("C-=" . er/expand-region))
 
 (use-package treemacs
   :ensure t
@@ -255,7 +238,7 @@
           treemacs-no-delete-other-windows         t
           treemacs-project-follow-cleanup          nil
           treemacs-persist-file                    (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
-          treemacs-position                        'left
+          treemacs-position                        'right
           treemacs-read-string-input               'from-child-frame
           treemacs-recenter-distance               0.1
           treemacs-recenter-after-file-follow      nil
@@ -268,7 +251,7 @@
           treemacs-show-hidden-files               t
           treemacs-silent-filewatch                nil
           treemacs-silent-refresh                  nil
-          treemacs-sorting                         'alphabetic-asc
+          treemacs-sorting                         'mod-time-desc
           treemacs-select-when-already-in-treemacs 'move-back
           treemacs-space-between-root-nodes        t
           treemacs-tag-follow-cleanup              t
@@ -280,11 +263,12 @@
           treemacs-width                           35
           treemacs-width-increment                 1
           treemacs-width-is-initially-locked       t
-          treemacs-workspace-switch-cleanup        nil)
+          treemacs-workspace-switch-cleanup        nil
+          treemacs-text-scale                      -0.5) 
 
     ;; The default width and height of the icons is 22 pixels. If you are
     ;; using a Hi-DPI display, uncomment this to double the icon size.
-    ;;(treemacs-resize-icons 44)
+    (treemacs-resize-icons 18)
 
     (treemacs-follow-mode t)
     (treemacs-filewatch-mode t)
@@ -304,15 +288,11 @@
   (:map global-map
         ("M-0"       . treemacs-select-window)
         ("C-x t 1"   . treemacs-delete-other-windows)
-        ("C-S-b"   . treemacs)
+        ("C-S-b"     . treemacs)
         ("C-x t d"   . treemacs-select-directory)
         ("C-x t B"   . treemacs-bookmark)
         ("C-x t C-t" . treemacs-find-file)
         ("C-x t M-t" . treemacs-find-tag)))
-
-(use-package treemacs-evil
-  :after (treemacs evil)
-  :ensure t)
 
 (use-package treemacs-projectile
   :after (treemacs projectile)
@@ -323,261 +303,152 @@
   :ensure t)
 
 (use-package treemacs-magit
-  :after (treemacs magit)
-  :ensure t)
-
-(use-package treemacs-persp ;;treemacs-perspective if you use perspective.el vs. persp-mode
-  :after (treemacs persp-mode) ;;or perspective vs. persp-mode
-  :ensure t
-  :config (treemacs-set-scope-type 'Perspectives))
-
-(use-package treemacs-tab-bar ;;treemacs-tab-bar if you use tab-bar-mode
-  :after (treemacs)
-  :ensure t
-  :config (treemacs-set-scope-type 'Tabs))
+  :after (treemacs magit))
 
 ;;;;;;;;;;;;;;;;
 ;; DEVLOPMENT ;;
 ;;;;;;;;;;;;;;;;
-
-(use-package lsp-mode
-  :init
-  ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
-  (setq lsp-keymap-prefix "C-c l")
-  :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-         (clojure-mode . lsp)
-         ;; if you want which-key integration
-         (lsp-mode . lsp-enable-which-key-integration))
+(use-package eglot
+  :bind ("C-S-i" . eglot-format-buffer)
+  :hook (( clojure-mode clojurec-mode clojurescript-mode
+             java-mode scala-mode)
+           . eglot-ensure)
   :config
-  (setq lsp-diagnostics-provider :flymake)
-  :commands
-  (lsp))
-
-;; optionally
-(use-package lsp-ui :commands lsp-ui-mode)
-;; if you are helm user
-(use-package helm-lsp :commands helm-lsp-workspace-symbol)
-;; if you are ivy user
-(use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
-
-;; (use-package eglot
-;;   :ensure t
-;;   :hook (((java-mode scala-mode go-ts-mode)
-;;           . eglot-ensure)
-;;          ((cider-mode eglot-managed-mode) . eglot-disable-in-cider))
-;;   :preface
-;;   (defun eglot-disable-in-cider ()
-;;     (when (eglot-managed-p)
-;;       (if (bound-and-true-p cider-mode)
-;;           (progn
-;;             (remove-hook 'completion-at-point-functions 'eglot-completion-at-point t)
-;;             (remove-hook 'xref-backend-functions 'eglot-xref-backend t))
-;;         (add-hook 'completion-at-point-functions 'eglot-completion-at-point nil t)
-;;         (add-hook 'xref-backend-functions 'eglot-xref-backend nil t)))))
+  (add-to-list 'eglot-server-programs
+        '(clojure-ts-mode . ("clojure-lsp")))
+  :custom
+  (eglot-autoshutdown t)
+  (eglot-events-buffer-size 0)
+  (eglot-extend-to-xref nil)
+  (eglot-ignored-server-capabilities
+   '(
+     ;; :hoverProvider
+     ;; :documentHighlightProvider
+     ;; :documentFormattingProvider
+     ;; :documentRangeFormattingProvider
+     ;; :documentOnTypeFormattingProvider
+     :colorProvider
+     ;; :foldingRangeProvider
+     ))
+  (eglot-stay-out-of '(yasnippet)))
 
 ;; Magit - git 
-(setup (:package magit))
-
-;; optionally if you want to use debugger
-;; Enabling only some features
-(setq dap-auto-configure-features '(sessions locals controls tooltip))
-
-
-(use-package dape
-  :ensure t
-  ;; By default dape shares the same keybinding prefix as `gud'
-  ;; If you do not want to use any prefix, set it to nil.
-  ;; :preface
-  ;; (setq dape-key-prefix "\C-x\C-a")
-  ;;
-  ;; May also need to set/change gud (gdb-mi) key prefix
-  ;; (setq gud-key-prefix "\C-x\C-a")
-
-  ;; :hook
-  ;; Save breakpoints on quit
-  ;; ((kill-emacs . dape-breakpoint-save)
-  ;; Load breakpoints on startup
-  ;;  (after-init . dape-breakpoint-load))
-
-  ;; :init
-  ;; To use window configuration like gud (gdb-mi)
-  ;; (setq dape-buffer-window-arrangement 'gud)
-
-  :config
-  ;; Info buffers to the right
-  (setq dape-buffer-window-arrangement 'right)
-
-  ;; To not display info and/or buffers on startup
-  ;; (remove-hook 'dape-on-start-hooks 'dape-info)
-  ;; (remove-hook 'dape-on-start-hooks 'dape-repl)
-
-  ;; To display info and/or repl buffers on stopped
-  (add-hook 'dape-on-stopped-hooks 'dape-info)
-  ;; (add-hook 'dape-on-stopped-hooks 'dape-repl)
-
-  ;; Kill compile buffer on build success
-  (add-hook 'dape-compile-compile-hooks 'kill-buffer)
-
-  ;; Save buffers on startup, useful for interpreted languages
-  (add-hook 'dape-on-start-hooks (lambda () (save-some-buffers t t)))
-
-  ;; Projectile users
-  (setq dape-cwd-fn 'projectile-project-root)
-  )
-
+(use-package magit
+  :defer t)
 
 ;; Company - auto 
-(setup (:package company)
-  (:hook-into cider-mode
-	          cider-repl-mode)
-  (:option company-global-modes '(not org-mode)
-           company-idle-delay (lambda () (if (company-in-string-or-comment) nil 0.3))
-           company-minimum-prefix-length 1
-           company-require-match nil
-           completion-ignore-case t) 
-  (add-hook 'after-init-hook 'global-company-mode))
+(use-package company
+  :defer t 
+  :hook (cider-mode
+         prog-mode
+	     cider-repl-mode)
+  :custom
+  (company-global-modes '(not org-mode))
+  (company-idle-delay (lambda () (if (company-in-string-or-comment) nil 0.1)))
+  (company-minimum-prefix-length 1)
+  (company-require-match nil)
+  (completion-ignore-case t))
 
-(setup (:package yasnippet)
-  (add-hook 'prog-mdoe-hook 'yas-minor-mode)
+(use-package yasnippet
+  :defer t 
+  :hook
+  (prog-mdoe . yas-minor-mode)
+  :config
   (yas-global-mode 1))
 
 ;; Paredit
-(setup (:package paredit)
-  (:hook-into emacs-lisp-mode
-	          eval-expression-minibuffer-setup
-	          ielm-mode
-	          lisp-mode
-	          lisp-interaction-mode
-	          scheme-mode
-              cojure-mode
-              clojure-ts-mode
-              cider-repl-mode
-              go-ts-mode
-              go-mode
-              prog-mode))
-(show-paren-mode 1)
+(use-package paredit
+  :defer t 
+  :hook (emacs-lisp-mode
+	     eval-expression-minibuffer-setup
+	     ielm-mode
+	     lisp-mode
+	     lisp-interaction-mode
+	     scheme-mode
+         cojure-mode
+         clojure-ts-mode
+         cider-repl-mode
+         go-ts-mode
+         go-mode)
+  :config
+  (show-paren-mode 1))
+
+(use-package electric-pair-mode
+  :ensure nil
+  :hook
+  (elixir-ts-mode))
 
 ;; Rainbow delimiters
-(setup (:package rainbow-delimiters)
-  (:hook-into prog-mode))
+(use-package rainbow-delimiters
+  :defer t 
+  :hook (prog-mode))
 
-(setup (:package mhtml-mode)
-  (:bind "C-c d" html-div
-         "C-c s" html-span))
-
-
-;;;;;;;;
-;; GO ;;
-;;;;;;;;
-
-(require 'dap-dlv-go)
-
-(use-package go-ts-mode
-  :ensure t
-  :mode "\\.go\\'"
-  :preface
-  (defun vd/go-lsp-start()
-    (add-hook 'before-save-hook #'lsp-format-buffer t t)
-    (add-hook 'before-save-hook #'lsp-organize-imports t t)
-    (lsp-deferred)
-    )
+(use-package mhtml-mode
+  :defer t 
   :bind
-  (:map go-ts-mode-map
-        ("C-c g b" . go-dap-setup)
-        ("C-c g h" . go-root-setup)
-        ("C-c g t" . dap-breakpoint-toggle)
-        ("C-c g a" . treesit-beginning-of-defun)
-        ("C-c g e" . treesit-end-of-defun)
-        ("C-c g i" . prog-indent-sexp)
-        ("RET"     . newline-and-indent)
-        ("M-RET"   . newline)
-        )
-  :custom
-  (go-ts-mode-indent-offset 4)
-  :config
-  (add-to-list 'exec-path "~/.local/bin")
-  (setq lsp-go-analyses '(
-                          (nilness . t)
-                          (shadow . t)
-                          (unusedwrite . t)
-                          (fieldalignment . t)
-                          (escape . t)
-                          )
-        lsp-go-codelenses '(
-                            (test . t)
-                            (tidy . t)
-                            (upgrade_dependency . t)
-                            (vendor . t)
-                            (gc_details . t)
-                            (run_govulncheck . t)
-                            )
-        )
-  :hook
-  (go-ts-mode . vd/go-lsp-start)
-  (go-ts-mode . electric-pair-mode))
+  ("C-c d" . html-div)
+  ("C-c s" . html-span))
 
-(use-package godoctor
+;;;;;;;;;;;;
+;; ELIXIR ;;
+;;;;;;;;;;;;
+
+(use-package elixir-ts-mode
+  :defer t
   :ensure t
-)
-
-
+  :hook
+  ((elixir-ts-mode clojure-ts-mode) . eglot-ensure)
+  (before-save . eglot-format))
 
 ;;;;;;;;;;;;
 ;; COJURE ;;
 ;;;;;;;;;;;;
-;; clojure-mode is (naturally) the major mode for editing
-;; Clojure and ClojureScript. subword-mode allows words
-;; in camel case to be treated as separate words for
-;; movement and editing commands.
-;; https://github.com/clojure-emacs/clojure-mode
-;; subword-mode is useful for working with camel-case tokens,
-;; like names of Java classes (e.g. JavaClassName)
-(setup (:package clojure-mode)
-  (:hook subword-mode
-         paredit-mode
-         lsp
-         lsp-lens-hide))
+
+(use-package clojure-ts-mode
+  :defer t 
+  :mode "\\.clj\\'"
+  :custom
+  (clojure-ts-toplevel-inside-comment-form t))
 
 ;; CIDER is a whole interactive development environment for
 ;; Clojure. There is a ton of functionality here, so be sure
 ;; to check out the excellent documentation at
 ;; https://docs.cider.mx/cider/index.html
-(setup (:package cider)
-  (:bind "C-c u" cider-user-ns
-         "C-M-r" cider-refresh)
-  (:option cider-show-error-buffer t
-           cider-auto-select-error-buffer t
-           cider-repl-history-file "~/.emacs.d/cider-history"
-           cider-repl-pop-to-buffer-on-connect t
-           cider-repl-wrap-history t))
+(use-package cider
+  :defer t 
+  :bind
+  ("C-c u" . cider-user-ns)
+  ("C-M-r" . cider-refresh)
+  :custom
+  (cider-show-error-buffer t)
+  (cider-auto-select-error-buffer t)
+  (cider-repl-history-file "~/.config/emacs/cider-history")
+  (cider-repl-pop-to-buffer-on-connect t)
+  (cider-repl-wrap-history t))
 
-;; company provides auto-completion for CIDER
-;; see https://docs.cider.mx/cider/usage/code_completion.html
-(setup (:package company)
-  (:hook-into cider-mode
-	            cider-repl-mode))
 
 ;; hydra provides a nice looking menu for commands
 ;; to see what's available, use M-x and the prefix cider-hydra
 ;; https://github.com/clojure-emacs/cider-hydra
-(setup (:package cider-hydra)
-  (:hook-into clojure-mode))
+(use-package cider-hydra
+  :defer t 
+  :hook
+  (clojure-ts-mode))
 
 ;; additional refactorings for CIDER
 ;; e.g. add missing libspec, extract function, destructure keys
 ;; https://github.com/clojure-emacs/clj-refactor.el
-(setup (:package clj-refactor)
+(use-package clj-refactor
+  :defer t 
+  :config
   (cljr-add-keybindings-with-prefix "C-c C-m")
-  (:hook-into clojure-mode))
-
-;; enable paredit in your REPL
-(setup cider-repl-mode
-  (:hook paredit-mode))
+  :hook
+  (clojure-ts-mode))
 
 ;; Use clojure mode for other extensions
-(add-to-list 'auto-mode-alist '("\\.boot$" . clojure-mode))
-(add-to-list 'auto-mode-alist '("\\.cljs.*$" . clojure-mode))
-(add-to-list 'auto-mode-alist '("lein-env" . enh-ruby-mode))
+;; (add-to-list 'auto-mode-alist '("\\.boot$" . clojure-mode))
+;; (add-to-list 'auto-mode-alist '("\\.cljs.*$" . clojure-mode))
+;; (add-to-list 'auto-mode-alist '("lein-env" . enh-ruby-mode))
 
 (defun cider-refresh ()
   (interactive)
@@ -638,7 +509,6 @@ This is particularly useful under Mac OSX, where GUI apps are not started from a
 (global-set-key (kbd "<S-return>") 'end-of-line-and-indented-new-line)
 (global-set-key (kbd "<C-M-return>") 'begin-of-line-and-indented-new-line)
 
-
 (global-set-key (kbd "C-x C-k") 'kill-buffer)
 (global-set-key (kbd "<M-return>") 'cider-pprint-eval-last-sexp)
 
@@ -649,10 +519,6 @@ This is particularly useful under Mac OSX, where GUI apps are not started from a
 (setq mac-option-modifier nil
       mac-command-modifier 'meta
       x-t-enable-clipboard t)
-
-(global-set-key (kbd "C-S-i") 'lsp-format-buffer)
-
-(desktop-save-mode 1)
 
 (add-hook 'org-mode-hook  'org-indent-mode)
 
