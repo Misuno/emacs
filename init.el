@@ -1,4 +1,6 @@
+
 (require 'package)
+
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (add-to-list 'package-archives '("elpa" . "https://elpa.gnu.org/packages/") t)
 (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
@@ -29,7 +31,7 @@
   (defalias 'yes-or-no-p 'y-or-n-p)
   (global-visual-line-mode)
   (save-place-mode 1)
-  ;; (setq display-line-numbers-type 'relative) 
+  (setq display-line-numbers-type 'relative) 
   (global-display-line-numbers-mode)
   (blink-cursor-mode 0)
 
@@ -69,7 +71,7 @@
   (format "%s %i" def-font size))
 
 ;; Set font
-(add-to-list 'default-frame-alist `(font . ,(my-font 13)))
+(add-to-list 'default-frame-alist `(font . ,(my-font 12)))
 
 (use-package modus-themes
   :ensure t
@@ -88,6 +90,25 @@
   (load-theme 'modus-vivendi-tinted :no-confirm))
 
 
+;; (use-package doom-themes
+;;   :ensure t
+;;   :config
+;;   ;; Global settings (defaults)
+;;   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+;;         doom-themes-enable-italic t) ; if nil, italics is universally disabled
+;;   (load-theme 'doom-one t)
+
+;;   ;; Enable flashing mode-line on errors
+;;   (doom-themes-visual-bell-config)
+;;   ;; Enable custom neotree theme (all-the-icons must be installed!)
+;;   (doom-themes-neotree-config)
+;;   ;; or for treemacs users
+;;   (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
+;;   (doom-themes-treemacs-config)
+;;   ;; Corrects (and improves) org-mode's native fontification.
+;;   (doom-themes-org-config))
+
+
 
 (use-package solaire-mode
   :defer nil 
@@ -100,110 +121,6 @@
 ;; PACKAGES INTERFACE ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(use-package ido
-  :custom
-  (ido-enable-flex-matching t)
-  (ido-everywhere nil)
-  (ido-use-filename-at-point 'guess)
-  (ido-create-new-buffer 'always)
-  (ido-file-extensions-order '(".clj" ".go" ".edn" ".templ" ".org" ".txt" ".py" ".emacs" ".xml" ".el" ".ini" ".cfg" ".cnf"))
-  (ido-ignore-extensions t)
-  :config
-  (setq-default confirm-nonexistent-file-or-buffer nil)
-  (ido-mode 1))
-
-
-;; NERD ICONS
-(use-package nerd-icons
-  :custom
-  (nerd-icons-font-family def-font))
-
-(use-package smex
-  :config
-  (smex-initialize)
-
-  :bind
-  ("M-x" . smex)
-  ("M-X" . smex-major-mode-commands)
-  ("<menu>" . smex))
-
-
-;; DOOM MODELINE
-(use-package doom-modeline
-  :custom
-  (doom-modeline-height 24)
-  :config
-  (doom-modeline-mode 1))
-
-;; This assumes you've installed the package via MELPA.
-(use-package ligature
-  :config
-  ;; Enable the "www" ligature in every possible major mode
-  (ligature-set-ligatures 't '("www"))
-  ;; Enable traditional ligature support in eww-mode, if the
-  ;; `variable-pitch' face supports it
-  (ligature-set-ligatures 'eww-mode '("ff" "fi" "ffi"))
-  ;; Enable all Cascadia Code ligatures in programming modes
-  (ligature-set-ligatures 'prog-mode '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
-                                       ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
-                                       "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
-                                       "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
-                                       "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
-                                       "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
-                                       "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
-                                       "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
-                                       ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
-                                       "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
-                                       "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
-                                       "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
-                                       "\\\\" "://"))
-  ;; Enables ligature checks globally in all buffers. You can also do it
-  ;; per mode with `ligature-mode'.
-  (global-ligature-mode t))
-
-(use-package which-key
-  :defer t
-  :config
-  (which-key-mode))
-
-;;;;;;;;;;;;;;;;;;;;;;;;
-;; PACKAGES INTERFACE ;;
-;;;;;;;;;;;;;;;;;;;;;;;;
-
-(use-package golden-ratio
-  :config
-  (golden-ratio-mode 1))
-
-
-(use-package vertico-posframe
-  :config
-  (vertico-posframe-mode 1))
-
-(setq vertico-multiform-commands
-      '((consult-line
-         posframe
-         (vertico-posframe-poshandler . posframe-poshandler-frame-top-center)
-         (vertico-posframe-border-width . 10)
-         ;; NOTE: This is useful when emacs is used in both in X and
-         ;; terminal, for posframe do not work well in terminal, so
-         ;; vertico-buffer-mode will be used as fallback at the
-         ;; moment.
-         (vertico-posframe-fallback-mode . vertico-buffer-mode))
-        (t posframe)))
-(vertico-multiform-mode 1)
-
-(use-package projectile
-  :config
-  (projectile-mode +1)
-  :bind
-  ("C-c f" . projectile--find-file)
-  ("C-M-p" . projectile-command-map))
-
-;; Expand-region - expand selection
-(use-package expand-region
-  :defer t 
-  :bind ("C-=" . er/expand-region))
-
 (use-package treemacs
   :ensure t
   :defer t
@@ -215,7 +132,7 @@
     (setq treemacs-collapse-dirs                   (if treemacs-python-executable 3 0)
           treemacs-deferred-git-apply-delay        0.5
           treemacs-directory-name-transformer      #'identity
-          treemacs-display-in-side-window          t
+          treemacs-display-in-side-window          nil
           treemacs-eldoc-display                   'simple
           treemacs-file-event-delay                2000
           treemacs-file-extension-regex            treemacs-last-period-regex-value
@@ -251,7 +168,7 @@
           treemacs-show-hidden-files               t
           treemacs-silent-filewatch                nil
           treemacs-silent-refresh                  nil
-          treemacs-sorting                         'mod-time-desc
+          treemacs-sorting                         'alphabetic-asc
           treemacs-select-when-already-in-treemacs 'move-back
           treemacs-space-between-root-nodes        t
           treemacs-tag-follow-cleanup              t
@@ -263,12 +180,11 @@
           treemacs-width                           35
           treemacs-width-increment                 1
           treemacs-width-is-initially-locked       t
-          treemacs-workspace-switch-cleanup        nil
-          treemacs-text-scale                      -0.5) 
+          treemacs-workspace-switch-cleanup        nil)
 
     ;; The default width and height of the icons is 22 pixels. If you are
     ;; using a Hi-DPI display, uncomment this to double the icon size.
-    (treemacs-resize-icons 18)
+    ;;(treemacs-resize-icons 44)
 
     (treemacs-follow-mode t)
     (treemacs-filewatch-mode t)
@@ -286,13 +202,18 @@
     (treemacs-hide-gitignored-files-mode nil))
   :bind
   (:map global-map
+        ("C-S-b"     . treemacs)
         ("M-0"       . treemacs-select-window)
         ("C-x t 1"   . treemacs-delete-other-windows)
-        ("C-S-b"     . treemacs)
+        ("C-x t t"   . treemacs)
         ("C-x t d"   . treemacs-select-directory)
         ("C-x t B"   . treemacs-bookmark)
         ("C-x t C-t" . treemacs-find-file)
         ("C-x t M-t" . treemacs-find-tag)))
+
+(use-package treemacs-evil
+  :after (treemacs evil)
+  :ensure t)
 
 (use-package treemacs-projectile
   :after (treemacs projectile)
@@ -303,40 +224,269 @@
   :ensure t)
 
 (use-package treemacs-magit
-  :after (treemacs magit))
+  :after (treemacs magit)
+  :ensure t)
+
+(use-package dired
+  :ensure
+  nil
+  :commands
+  (dired dired-jump)
+  :custom
+  (dired-listing-switches
+   "-goah --group-directories-first --time-style=long-iso")
+  (dired-dwim-target t)
+  (delete-by-moving-to-trash t)
+  :init ;; Open dired folders in same buffer
+  (put 'dired-find-alternate-file 'disabled nil))
+
+(use-package undo-fu
+  :defer nil)
+
+(use-package evil
+  :config
+  ;; Keys
+  (evil-set-leader 'normal (kbd "SPC"))
+  (evil-define-key nil evil-normal-state-map
+                   (kbd "<leader>ff") 'projectile--find-file
+                   (kbd "<leader>ee") 'cider-eval-last-sexp
+                   (kbd "<leader>pp") 'cider-pprint-eval-defun-at-point
+                   (kbd "<leader>x") 'kill-buffer
+                   (kbd "<leader>;") 'comment-line
+                   (kbd "<leader>b") 'switch-to-buffer) 
+  (evil-set-undo-system 'undo-fu)
+  (evil-mode 1))
+
+
+;; NERD ICONS
+(use-package nerd-icons
+  :custom
+  (nerd-icons-font-family def-font))
+
+
+;; DOOM MODELINE
+(use-package doom-modeline
+  :custom
+  (doom-modeline-height 28)
+  :config
+  (doom-modeline-mode 1))
+
+;; This assumes you've installed the package via MELPA.
+(use-package ligature
+  :config
+  ;; Enable the "www" ligature in every possible major mode
+  (ligature-set-ligatures 't '("www"))
+  ;; Enable traditional ligature support in eww-mode, if the
+  ;; `variable-pitch' face supports it
+  (ligature-set-ligatures 'eww-mode '("ff" "fi" "ffi"))
+  ;; Enable all Cascadia Code ligatures in programming modes
+  (ligature-set-ligatures 'prog-mode '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
+                                       ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
+                                       "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
+                                       "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
+                                       "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
+                                       "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
+                                       "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
+                                       "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
+                                       ">=" ">>" ">-" "-~" "-|" "->" "-<" "<~" "<*" "<|" "<:"
+                                       "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
+                                       "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
+                                       "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
+                                       "\\\\" "://"))
+  ;; Enables ligature checks globally in all buffers. You can also do it
+  ;; per mode with `ligature-mode'.
+  (global-ligature-mode t))
+
+(use-package which-key
+  :defer t
+  :config
+  (which-key-mode))
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+;; PACKAGES INTERFACE ;;
+;;;;;;;;;;;;;;;;;;;;;;;;
+
+(use-package golden-ratio
+  :config
+  (golden-ratio-mode 1))
+
+
+(use-package projectile
+  :config
+  (projectile-mode +1)
+  :bind
+  ("C-c C-x" . projectile--find-file)
+  ("C-M-p" . projectile-command-map))
+
+;; Expand-region - expand selection
+(use-package expand-region
+  :defer t 
+  :bind ("C-=" . er/expand-region))
+
+
+;; Enable vertico
+(use-package vertico
+  :init
+  (vertico-mode)
+
+  ;; Different scroll margin
+  ;; (setq vertico-scroll-margin 0)
+
+  ;; Show more candidates
+  ;; (setq vertico-count 20)
+
+  ;; Grow and shrink the Vertico minibuffer
+  ;; (setq vertico-resize t)
+
+  ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
+  ;; (setq vertico-cycle t)
+  )
+
+;; Enable vertico-multiform
+(vertico-multiform-mode)
+
+;; Configure the display per command.
+;; Use a buffer with indices for imenu
+;; and a flat (Ido-like) menu for M-x.
+(setq vertico-multiform-commands
+      '((execute-extended-command unobtrusive)))
+
+
+;; Persist history over Emacs restarts. Vertico sorts by history position.
+(use-package savehist
+  :init
+  (savehist-mode))
+
+;; A few more useful configurations...
+(use-package emacs
+  :init
+  ;; Add prompt indicator to `completing-read-multiple'.
+  ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
+  (defun crm-indicator (args)
+    (cons (format "[CRM%s] %s"
+                  (replace-regexp-in-string
+                   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+                   crm-separator)
+                  (car args))
+          (cdr args)))
+  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+
+  ;; Do not allow the cursor in the minibuffer prompt
+  (setq minibuffer-prompt-properties
+        '(read-only t cursor-intangible t face minibuffer-prompt))
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+
+  ;; Support opening new minibuffers from inside existing minibuffers.
+  (setq enable-recursive-minibuffers t)
+
+  ;; Emacs 28 and newer: Hide commands in M-x which do not work in the current
+  ;; mode.  Vertico commands are hidden in normal buffers. This setting is
+  ;; useful beyond Vertico.
+  (setq read-extended-command-predicate #'command-completion-default-include-p))
+
+;; Optionally use the `orderless' completion style.
+(use-package orderless
+  :init
+  ;; Configure a custom style dispatcher (see the Consult wiki)
+  ;; (setq orderless-style-dispatchers '(+orderless-consult-dispatch orderless-affix-dispatch)
+  ;;       orderless-component-separator #'orderless-escapable-split-on-space)
+  (setq completion-styles '(orderless basic)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles partial-completion)))))
+
+;; Example configuration for Consult
 
 ;;;;;;;;;;;;;;;;
 ;; DEVLOPMENT ;;
 ;;;;;;;;;;;;;;;;
+
+(setq treesit-language-source-alist
+   '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+     (cmake "https://github.com/uyha/tree-sitter-cmake")
+     (css "https://github.com/tree-sitter/tree-sitter-css")
+     (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+     (go "https://github.com/tree-sitter/tree-sitter-go")
+     (html "https://github.com/tree-sitter/tree-sitter-html")
+     (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+     (json "https://github.com/tree-sitter/tree-sitter-json")
+     (make "https://github.com/alemuller/tree-sitter-make")
+     (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+     (python "https://github.com/tree-sitter/tree-sitter-python")
+     (toml "https://github.com/tree-sitter/tree-sitter-toml")
+     (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+     (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+     (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
+
 (use-package eglot
-  :bind ("C-S-i" . eglot-format-buffer)
-  :hook (( clojure-mode clojurec-mode clojurescript-mode
-             java-mode scala-mode)
-           . eglot-ensure)
+  :bind (("C-S-i" . eglot-format-buffer))
+  :hook ((
+          ;; clojure-ts-mode
+          ;; clojure-mode
+          ;; clojurec-mode
+          ;; clojurescript-mode
+          ;; elixir-ts-mode
+          ;; elixir-mode
+          haskell-mode
+          java-mode scala-mode)
+         . eglot-ensure)
   :config
   (add-to-list 'eglot-server-programs
         '(clojure-ts-mode . ("clojure-lsp")))
   :custom
   (eglot-autoshutdown t)
-  (eglot-events-buffer-size 0)
   (eglot-extend-to-xref nil)
-  (eglot-ignored-server-capabilities
-   '(
-     ;; :hoverProvider
-     ;; :documentHighlightProvider
-     ;; :documentFormattingProvider
-     ;; :documentRangeFormattingProvider
-     ;; :documentOnTypeFormattingProvider
-     :colorProvider
-     ;; :foldingRangeProvider
-     ))
-  (eglot-stay-out-of '(yasnippet)))
+  (eglot-stay-out-of '(yasnippet))
+  (eglot-confirm-server-initiated-edits nil)
+  (setq-default eglot-workspace-configuration
+                '((haskell
+                   (plugin
+                    (stan
+                     (globalOn . :json-false)))))))
 
+
+(setup (:package lsp-mode lsp-ui lsp-ivy lsp-treemacs)
+  (:hook lsp-enable-which-key-integration)
+  (:bind "M-<f7>" lsp-find-references))
+
+(use-package lsp-mode
+  :hook ((clojure-ts-mode
+          clojure-ts-mode
+          clojure-mode
+          clojurec-mode
+          clojurescript-mode
+          elixir-ts-mode) . lsp)
+  :commands lsp
+  :bind (:map lsp-mode-map
+              ("C-S-i" . lsp-format-buffer))
+  :custom
+  (lsp-lens-place-position 'above-line)
+  (lsp-modeline-code-actions-segments '(count icon name)))
+
+(with-eval-after-load 'lsp-mode
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-stdio-connection '("nextls" "--stdio" ))
+                    :multi-root t
+                    ;; :initialization-options '(:experimental (:completions (:enable t))) ;; Enable the experimental completion mode
+                    :activation-fn (lsp-activate-on "elixir")
+                    :server-id 'next-ls)))
+
+
+
+(use-package lsp-ui
+  :custom
+  ;; (lsp-ui-sideline-show-diagnostics t)
+  ;; (lsp-ui-sideline-show-hover t)
+  ;; (lsp-ui-sideline-show-code-actions t)
+  (lsp-ui-sideline-update-mode "line")
+  (lsp-ui-doc-enable t)
+  (lsp-ui-doc-show-with-mouse t))
+
+ 
 ;; Magit - git 
 (use-package magit
   :defer t)
 
-;; Company - auto 
+;; Company - auto completion 
 (use-package company
   :defer t 
   :hook (cider-mode
@@ -348,6 +498,10 @@
   (company-minimum-prefix-length 1)
   (company-require-match nil)
   (completion-ignore-case t))
+
+;; (use-package company-box
+;;   :hook (company-mode . company-box-mode))
+
 
 (use-package yasnippet
   :defer t 
@@ -376,7 +530,7 @@
 (use-package electric-pair-mode
   :ensure nil
   :hook
-  (elixir-ts-mode))
+  (prog-mode))
 
 ;; Rainbow delimiters
 (use-package rainbow-delimiters
@@ -389,16 +543,20 @@
   ("C-c d" . html-div)
   ("C-c s" . html-span))
 
-;;;;;;;;;;;;
-;; ELIXIR ;;
-;;;;;;;;;;;;
 
-(use-package elixir-ts-mode
-  :defer t
+;; (use-package flymake
+;;   :bind
+;;   ("M-n" . flymake-goto-next-error)
+;;   ("M-p" . flymake-goto-prev-error))
+
+(use-package flycheck
   :ensure t
-  :hook
-  ((elixir-ts-mode clojure-ts-mode) . eglot-ensure)
-  (before-save . eglot-format))
+  :config
+  (add-hook 'after-init-hook #'global-flycheck-mode))
+
+;; First install the package:
+(use-package flycheck-clj-kondo
+  :ensure t)
 
 ;;;;;;;;;;;;
 ;; COJURE ;;
@@ -407,8 +565,20 @@
 (use-package clojure-ts-mode
   :defer t 
   :mode "\\.clj\\'"
+  :hook (clojure-ts-mode . subword-mode)
+  (clojure-ts-mode . paredit-mode)
   :custom
-  (clojure-ts-toplevel-inside-comment-form t))
+  (clojure-ts-toplevel-inside-comment-form t)
+  :config
+  (require 'flycheck-clj-kondo))
+
+(setup (:package clj-refactor)
+  (cljr-add-keybindings-with-prefix "C-c C-m")
+  (:hook-into clojure-ts-mode))
+
+(setup (:package cider-hydra)
+  (:hook-into clojure-ts-mode))
+
 
 ;; CIDER is a whole interactive development environment for
 ;; Clojure. There is a ton of functionality here, so be sure
@@ -459,6 +629,31 @@
   (cider-repl-set-ns "user"))
 
 ;;;;;;;;;;;;;
+;; HASKELL ;;
+;;;;;;;;;;;;;
+
+(use-package lsp-haskell)
+
+(use-package haskell-mode
+  :hook
+  ((haskell-mode haskell-literate-mode) . lsp)
+  :defer t)
+
+;;;;;;;;;;;
+;; GLEAM ;;
+;;;;;;;;;;;
+
+(use-package gleam-mode
+  :load-path "~/.config/emacs/gleam-mode"
+  :bind (:map gleam-mode-map
+              ("C-S-i" . gleam-format)))
+
+(add-hook 'gleam-mode-hook
+          (lambda () (add-hook 'before-save-hook 'gleam-format nil t)))
+
+
+
+;;;;;;;;;;;;;
 ;; CUSTOMS ;;
 ;;;;;;;;;;;;;
 
@@ -481,7 +676,8 @@ This is particularly useful under Mac OSX, where GUI apps are not started from a
 (setup (:package eat))
 
 ;; Bash completion
-(setup (:package bash-completion)
+(use-package bash-completion
+  :config
   (bash-completion-setup))
 
 
