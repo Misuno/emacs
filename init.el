@@ -8,7 +8,6 @@
 (add-to-list 'package-archives '("elpy" . "http://jorgenschaefer.github.io/packages/") t)
 (package-initialize)
 
-(setq use-package-always-ensure t)
 ;; setup.el provides a macro for configuration patterns
 ;; it makes package installation and config nice and tidy!
 ;; https://www.emacswiki.org/emacs/SetupEl
@@ -31,10 +30,10 @@
   (defalias 'yes-or-no-p 'y-or-n-p)
   (global-visual-line-mode)
   (save-place-mode 1)
-  (setq display-line-numbers-type 'relative) 
+  (setq display-line-numbers-type 't) 
   (global-display-line-numbers-mode)
   (blink-cursor-mode 0)
-
+  
   ;; When you visit a file, point goes to the last place where it
   ;; was when you previously visited the same file.
   ;; http://www.emacswiki.org/emacs/SavePlace
@@ -56,6 +55,8 @@
                                                "backups"))))
   (auto-save-default nil))
 
+(setq-default line-spacing 0.2)
+
 
 ;; Don't show line numbers in certain modes
 (dolist (mode '(org-mode-hook
@@ -65,7 +66,8 @@
                 eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-(setq def-font "Iosevka Nerd Font Propo")
+(setq def-font "CaskaydiaCove Nerd Font")
+;; (setq def-font "Iosevka Nerd Font Propo")
 
 (defun my-font (size)
   (format "%s %i" def-font size))
@@ -77,7 +79,7 @@
   :ensure t
   :defer nil
   :bind
-  ([f5] . modus-themes-toggle)
+  ([f4] . modus-themes-toggle)
   
   :custom
   (modus-themes-italic-constructs t)
@@ -111,6 +113,7 @@
 
 
 (use-package solaire-mode
+  :ensure t
   :defer nil 
   :config
   (solaire-global-mode +1))
@@ -121,115 +124,30 @@
 ;; PACKAGES INTERFACE ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(use-package treemacs
+(use-package undo-tree
   :ensure t
-  :defer t
-  :init
-  (with-eval-after-load 'winum
-    (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+  :defer nil
   :config
-  (progn
-    (setq treemacs-collapse-dirs                   (if treemacs-python-executable 3 0)
-          treemacs-deferred-git-apply-delay        0.5
-          treemacs-directory-name-transformer      #'identity
-          treemacs-display-in-side-window          nil
-          treemacs-eldoc-display                   'simple
-          treemacs-file-event-delay                2000
-          treemacs-file-extension-regex            treemacs-last-period-regex-value
-          treemacs-file-follow-delay               0.2
-          treemacs-file-name-transformer           #'identity
-          treemacs-follow-after-init               t
-          treemacs-expand-after-init               t
-          treemacs-find-workspace-method           'find-for-file-or-pick-first
-          treemacs-git-command-pipe                ""
-          treemacs-goto-tag-strategy               'refetch-index
-          treemacs-header-scroll-indicators        '(nil . "^^^^^^")
-          treemacs-hide-dot-git-directory          t
-          treemacs-indentation                     2
-          treemacs-indentation-string              " "
-          treemacs-is-never-other-window           nil
-          treemacs-max-git-entries                 5000
-          treemacs-missing-project-action          'ask
-          treemacs-move-forward-on-expand          nil
-          treemacs-no-png-images                   nil
-          treemacs-no-delete-other-windows         t
-          treemacs-project-follow-cleanup          nil
-          treemacs-persist-file                    (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
-          treemacs-position                        'right
-          treemacs-read-string-input               'from-child-frame
-          treemacs-recenter-distance               0.1
-          treemacs-recenter-after-file-follow      nil
-          treemacs-recenter-after-tag-follow       nil
-          treemacs-recenter-after-project-jump     'always
-          treemacs-recenter-after-project-expand   'on-distance
-          treemacs-litter-directories              '("/node_modules" "/.venv" "/.cask")
-          treemacs-project-follow-into-home        nil
-          treemacs-show-cursor                     nil
-          treemacs-show-hidden-files               t
-          treemacs-silent-filewatch                nil
-          treemacs-silent-refresh                  nil
-          treemacs-sorting                         'alphabetic-asc
-          treemacs-select-when-already-in-treemacs 'move-back
-          treemacs-space-between-root-nodes        t
-          treemacs-tag-follow-cleanup              t
-          treemacs-tag-follow-delay                1.5
-          treemacs-text-scale                      nil
-          treemacs-user-mode-line-format           nil
-          treemacs-user-header-line-format         nil
-          treemacs-wide-toggle-width               70
-          treemacs-width                           35
-          treemacs-width-increment                 1
-          treemacs-width-is-initially-locked       t
-          treemacs-workspace-switch-cleanup        nil)
+  (global-undo-tree-mode t))
 
-    ;; The default width and height of the icons is 22 pixels. If you are
-    ;; using a Hi-DPI display, uncomment this to double the icon size.
-    ;;(treemacs-resize-icons 44)
+(use-package evil
+  :ensure t
+  :defer nil
+  :custom
+  (evil-undo-system 'undo-tree)
+  (evil-bigword "^ \t\r\n")
+  (evil-want-keybinding nil)
+  :config
+  (evil-mode 1))
 
-    (treemacs-follow-mode t)
-    (treemacs-filewatch-mode t)
-    (treemacs-fringe-indicator-mode 'always)
-    (when treemacs-python-executable
-      (treemacs-git-commit-diff-mode t))
-
-    (pcase (cons (not (null (executable-find "git")))
-                 (not (null treemacs-python-executable)))
-      (`(t . t)
-       (treemacs-git-mode 'deferred))
-      (`(t . _)
-       (treemacs-git-mode 'simple)))
-
-    (treemacs-hide-gitignored-files-mode nil))
-  :bind
-  (:map global-map
-        ("C-S-b"     . treemacs)
-        ("M-0"       . treemacs-select-window)
-        ("C-x t 1"   . treemacs-delete-other-windows)
-        ("C-x t t"   . treemacs)
-        ("C-x t d"   . treemacs-select-directory)
-        ("C-x t B"   . treemacs-bookmark)
-        ("C-x t C-t" . treemacs-find-file)
-        ("C-x t M-t" . treemacs-find-tag)))
-
-(use-package treemacs-evil
-  :after (treemacs evil)
-  :ensure t)
-
-(use-package treemacs-projectile
-  :after (treemacs projectile)
-  :ensure t)
-
-(use-package treemacs-icons-dired
-  :hook (dired-mode . treemacs-icons-dired-enable-once)
-  :ensure t)
-
-(use-package treemacs-magit
-  :after (treemacs magit)
-  :ensure t)
+(use-package evil-collection
+  :after evil
+  :ensure t
+  :config
+  (evil-collection-init))
 
 (use-package dired
-  :ensure
-  nil
+  :ensure nil
   :commands
   (dired dired-jump)
   :custom
@@ -241,22 +159,8 @@
   (put 'dired-find-alternate-file 'disabled nil))
 
 (use-package undo-fu
+  :ensure t 
   :defer nil)
-
-(use-package evil
-  :config
-  ;; Keys
-  (evil-set-leader 'normal (kbd "SPC"))
-  (evil-define-key nil evil-normal-state-map
-                   (kbd "<leader>ff") 'projectile--find-file
-                   (kbd "<leader>ee") 'cider-eval-last-sexp
-                   (kbd "<leader>pp") 'cider-pprint-eval-defun-at-point
-                   (kbd "<leader>x") 'kill-buffer
-                   (kbd "<leader>;") 'comment-line
-                   (kbd "<leader>b") 'switch-to-buffer) 
-  (evil-set-undo-system 'undo-fu)
-  (evil-mode 1))
-
 
 ;; NERD ICONS
 (use-package nerd-icons
@@ -310,12 +214,11 @@
   :config
   (golden-ratio-mode 1))
 
-
 (use-package projectile
   :config
   (projectile-mode +1)
   :bind
-  ("C-c C-x" . projectile--find-file)
+  ("<f5>" . projectile--find-file)
   ("C-M-p" . projectile-command-map))
 
 ;; Expand-region - expand selection
