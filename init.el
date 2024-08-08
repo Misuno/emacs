@@ -106,6 +106,20 @@
   :config
   (evil-collection-init))
 
+(use-package god-mode
+  :ensure t
+  :defer nil)
+
+(use-package evil-god-state
+  :ensure t
+  :defer nil
+  :config
+  (evil-define-key 'normal global-map "," 'evil-execute-in-god-state)
+  ;; (add-hook 'evil-god-state-entry-hook (lambda () (diminish 'god-local-mode)))
+  ;; (add-hook 'evil-god-state-exit-hook (lambda () (diminish-undo 'god-local-mode)))
+  (evil-define-key 'god global-map [escape] 'evil-god-state-bail))
+
+
 (use-package dired
   :ensure nil
   :commands
