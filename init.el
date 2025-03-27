@@ -59,8 +59,7 @@
                 eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-(setq def-font "FiraCode Nerd Font")
-;; (setq def-font "Iosevka Nerd Font Propo")
+(setq def-font "Iosevka Nerd Font Propo")
 
 (defun my-font (size)
   (format "%s %i" def-font size))
@@ -188,6 +187,8 @@
   :defer t
   :config
   (projectile-mode +1)
+  :init
+  (setq projectile-project-search-path '("~/src/" "~/work/" "~/.config"))
   :bind
   ("<f5>" . projectile--find-file)
   ("C-M-p" . projectile-command-map))
@@ -208,11 +209,21 @@
   :config
   (ido-mode 1))
 
-(use-package smex
+(use-package ido-completing-read+
+  :ensure t
+  :defer nil)
+
+(use-package amx
   :ensure t
   :defer nil
-  :bind (("M-x" . smex))
-  :config (smex-initialize))
+  :init
+  (amx-mode))
+
+;; (use-package smex
+;;   :ensure t
+;;   :defer nil
+;;   :bind (("M-x" . smex))
+;;   :config (smex-initialize))
 
 ;;;;;;;;;;;;;;;;
 ;; DEVLOPMENT ;;
@@ -239,15 +250,15 @@
 
 (use-package eglot
   :ensure nil
-  :defer t
+  :defer nil
   :bind (("C-S-i" . eglot-format-buffer))
   :hook ((
-          ;; clojure-ts-mode
-          ;; clojure-mode
-          ;; clojurec-mode
-          ;; clojurescript-mode
-          ;; elixir-ts-mode
-          ;; elixir-mode
+          clojure-ts-mode
+          clojure-mode
+          clojurec-mode
+          clojurescript-mode
+          elixir-ts-mode
+          elixir-mode
           haskell-mode
           java-mode scala-mode)
          . eglot-ensure)
@@ -265,30 +276,30 @@
                     (stan
                      (globalOn . :json-false)))))))
 
-(use-package lsp-mode
-  :ensure t
-  :defer t
-  :hook ((clojure-ts-mode
-          clojure-ts-mode
-          clojure-mode
-          clojurec-mode
-          clojurescript-mode
-          elixir-ts-mode) . lsp)
-  :commands lsp
-  :bind (:map lsp-mode-map
-              ("C-S-i" . lsp-format-buffer))
-  :custom
-  (lsp-lens-enable nil)
-  (lsp-lens-place-position 'above-line)
-  (lsp-modeline-code-actions-segments '(count icon name)))
+;; (use-package lsp-mode
+;;   :ensure t
+;;   :defer t
+;;   :hook ((clojure-ts-mode
+;;           clojure-ts-mode
+;;           clojure-mode
+;;           clojurec-mode
+;;           clojurescript-mode
+;;           elixir-ts-mode) . lsp)
+;;   :commands tsp
+;;   :bind (:map lsp-mode-map
+;;               ("C-S-i" . lsp-format-buffer))
+;;   :custom
+;;   (lsp-lens-enable nil)
+;;   (lsp-lens-place-position 'above-line)
+;;   (lsp-modeline-code-actions-segments '(count icon name)))
 
-(with-eval-after-load 'lsp-mode
-  (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection '("nextls" "--stdio" ))
-                    :multi-root t
-                    ;; :initialization-options '(:experimental (:completions (:enable t))) ;; Enable the experimental completion mode
-                    :activation-fn (lsp-activate-on "elixir")
-                    :server-id 'next-ls)))
+;; (with-eval-after-load 'lsp-mode
+;;   (lsp-register-client
+;;    (make-lsp-client :new-connection (lsp-stdio-connection '("nextls" "--stdio" ))
+;;                     :multi-root t
+;;                     ;; :initialization-options '(:experimental (:completions (:enable t))) ;; Enable the experimental completion mode
+;;                     :activation-fn (lsp-activate-on "elixir")
+;;                     :server-id 'next-ls)))
 
 
 
@@ -312,31 +323,6 @@
 (use-package restclient
   :ensure t
   :defer t)
-
-;; ;; Company - auto completion 
-;; (use-package company
-;;   :ensure t
-;;   :defer t 
-;;   :hook (cider-mode
-;;          prog-mode
-;; 	     cider-repl-mode)
-;;   :custom
-;;   (company-global-modes '(not org-mode))
-;;   (company-idle-delay (lambda () (if (company-in-string-or-comment) nil 0.1)))
-;;   (company-minimum-prefix-length 1)
-;;   (company-require-match nil)
-;;   (completion-ignore-case t))
-
-;; ;; (use-package company-box
-;;   :hook (company-mode . company-box-mode))
-
-;; (use-package yasnippet
-;;   :ensure t
-;;   :defer t 
-;;   :hook
-;;   (prog-mdoe . yas-minor-mode)
-;;   :config
-;;   (yas-global-mode 1))
 
 ;; Autocompletion
 (use-package corfu
@@ -509,15 +495,15 @@
 ;;;;;;;;;;;;;
 
 
-(defun set-exec-path-from-shell-PATH ()
-  "Set up Emacs' `exec-path' and PATH environment variable to match that used by the user's shell.
-This is particularly useful under Mac OSX, where GUI apps are not started from a shell."
-  (interactive)
-  (let ((path-from-shell (replace-regexp-in-string "[ \t\n]*$" "" (shell-command-to-string "$SHELL --login -i -c 'echo $PATH'"))))
-    (setenv "PATH" path-from-shell)
-    (setq exec-path (split-string path-from-shell path-separator))))
+;; (defun set-exec-path-from-shell-PATH ()
+;;   "Set up Emacs' `exec-path' and PATH environment variable to match that used by the user's shell.
+;; This is particularly useful under Mac OSX, where GUI apps are not started from a shell."
+;;   (interactive)
+;;   (let ((path-from-shell (replace-regexp-in-string "[ \t\n]*$" "" (shell-command-to-string "$SHELL --login -i -c 'echo $PATH'"))))
+;;     (setenv "PATH" path-from-shell)
+;;     (setq exec-path (split-string path-from-shell path-separator))))
 
-(set-exec-path-from-shell-PATH)
+;; (set-exec-path-from-shell-PATH)
 
 ;; CUSTOMS
 (setq custom-file "custom.el")
