@@ -60,6 +60,7 @@
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 (setq def-font "Iosevka Nerd Font Propo")
+;; (setq def-font "Iosevka Extended")
 
 (defun my-font (size)
   (format "%s %i" def-font size))
@@ -184,14 +185,17 @@
 
 (use-package projectile
   :ensure t
-  :defer t
-  :config
-  (projectile-mode +1)
+  :defer nil
+  :custom
+  (projectile-project-search-path '("~/src/" "~/work/" "~/.config"))
+  (projectile-enable-caching 'persistent)
+  (projectile-known-projects-file "~/.config/emacs/projectile-bookmarks.eld")
+  (projectile-completion-system 'ido)
   :init
-  (setq projectile-project-search-path '("~/src/" "~/work/" "~/.config"))
+  (projectile-mode 1)
   :bind
   ("<f5>" . projectile--find-file)
-  ("C-M-p" . projectile-command-map))
+  ("C-s-p" . projectile-command-map))
 
 ;; Expand-region - expand selection
 (use-package expand-region
@@ -200,18 +204,29 @@
   :bind ("C-=" . er/expand-region))
 
 (use-package ido
-  :ensure t
+  :ensure nil
   :defer nil
   :custom
   (ido-enable-flex-matching t)
   (ido-everywhere t)
   (ido-file-extensions-order '(".clj" ".org" ".txt" ".py" ".emacs" ".xml" ".el" ".ini" ".cfg" ".cnf"))
-  :config
+  :init
   (ido-mode 1))
 
 (use-package ido-completing-read+
   :ensure t
   :defer nil)
+
+(use-package flx-ido
+  :ensure t
+  :defer nil
+  :custom
+  ;; disable ido faces to see flx highlights.
+  (ido-enable-flex-matching t)
+  (ido-use-faces nil)
+  :init
+  (flx-ido-mode 1)
+)
 
 (use-package amx
   :ensure t
@@ -488,7 +503,14 @@
 ;; (add-hook 'gleam-mode-hook
 ;;           (lambda () (add-hook 'before-save-hook 'gleam-format nil t)))
 
+;;;;;;;;;
+;; NIX ;;
+;;;;;;;;;
 
+(use-package nix-mode
+  :ensure t
+  :defer t
+  :mode "\\.nix\\'")
 
 ;;;;;;;;;;;;;
 ;; CUSTOMS ;;
@@ -523,6 +545,15 @@
 ;; KEYBINDINGS
 (global-set-key (kbd "M-/") 'hippie-expand)
 
+;; dd equivalent
+(defun kill-current-line (&optional n)
+  (interactive "p")
+  (save-excursion
+    (beginning-of-line)
+    (let ((kill-whole-line t))
+      (kill-line n))))
+
+(global-set-key (kbd "C-S-k") 'kill-current-line)
 
 ;; NEWLINE
 (defun end-of-line-and-indented-new-line ()
@@ -541,8 +572,8 @@
 (global-set-key (kbd "C-<tab>") 'next-buffer)
 (global-set-key (kbd "C-<iso-lefttab>") 'previous-buffer)
 
-(global-set-key (kbd "<S-return>") 'end-of-line-and-indented-new-line)
-(global-set-key (kbd "<C-M-return>") 'begin-of-line-and-indented-new-line)
+(global-set-key (kbd "<C-return>") 'end-of-line-and-indented-new-line)
+(global-set-key (kbd "<C-S-return>") 'begin-of-line-and-indented-new-line)
 
 (global-set-key (kbd "C-x C-k") 'kill-buffer)
 (global-set-key (kbd "<M-return>") 'cider-pprint-eval-last-sexp)
