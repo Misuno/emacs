@@ -55,34 +55,46 @@
 (dolist (mode '(org-mode-hook
                 term-mode-hook
                 shell-mode-hook
-                treemacs-mode-hook
                 eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-(setq def-font "Iosevka Nerd Font Propo")
+(setq def-font "FiraCode Nerd Font Propo")
+;; (setq def-font "JetBrainsMono Nerd Font Propo")
 ;; (setq def-font "Iosevka Extended")
 
 (defun my-font (size)
   (format "%s %i" def-font size))
 
 ;; Set font
-(add-to-list 'default-frame-alist `(font . ,(my-font 12)))
+(add-to-list 'default-frame-alist `(font . ,(my-font 16)))
 
-(use-package modus-themes
+;; (use-package modus-themes
+;;   :ensure t
+;;   :defer nil
+;;   :bind
+;;   ([f4] . modus-themes-toggle)
+  
+;;   :custom
+;;   (modus-themes-italic-constructs t)
+;;   (modus-themes-bold-constructs t)
+;;   (modus-themes-disable-other-themes t)
+;;   (modus-themes-to-toggle '(modus-vivendi modus-operandi))
+  
+;;   :config
+;;   (mapc #'disable-theme custom-enabled-themes)
+;;   (load-theme 'modus-vivendi :no-confirm))
+
+;; (use-package solarized-theme
+;;   :ensure t
+;;   :defer nil
+;;   :init
+;;   (load-theme 'solarized-dark t))
+
+(use-package zenburn-theme
   :ensure t
   :defer nil
-  :bind
-  ([f4] . modus-themes-toggle)
-  
-  :custom
-  (modus-themes-italic-constructs t)
-  (modus-themes-bold-constructs t)
-  (modus-themes-disable-other-themes t)
-  (modus-themes-to-toggle '(modus-vivendi-tinted modus-operandi-tinted))
-  
   :config
-  (mapc #'disable-theme custom-enabled-themes)
-  (load-theme 'modus-vivendi-tinted :no-confirm))
+  (load-theme 'zenburn t))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; PACKAGES INTERFACE ;;
@@ -195,7 +207,7 @@
   (projectile-mode 1)
   :bind
   ("<f5>" . projectile--find-file)
-  ("C-s-p" . projectile-command-map))
+  ("<f6>" . projectile-switch-project))
 
 ;; Expand-region - expand selection
 (use-package expand-region
@@ -278,8 +290,8 @@
           java-mode scala-mode)
          . eglot-ensure)
   :config
-  (add-to-list 'eglot-server-programs
-        '(clojure-ts-mode . ("clojure-lsp")))
+  (setq eglot-server-programs
+      '((clojure-ts-mode . ("clojure-lsp"))))
   :custom
   (eglot-autoshutdown t)
   (eglot-extend-to-xref nil)
@@ -304,12 +316,12 @@
 ;;   :bind (:map lsp-mode-map
 ;;               ("C-S-i" . lsp-format-buffer))
 ;;   :custom
-;;   (lsp-lens-enable nil)
+;;   (lsp-lens-enable t)
 ;;   (lsp-lens-place-position 'above-line)
 ;;   (lsp-modeline-code-actions-segments '(count icon name)))
 
 ;; (with-eval-after-load 'lsp-mode
-;;   (lsp-register-client
+;;   (lsp-register-clent
 ;;    (make-lsp-client :new-connection (lsp-stdio-connection '("nextls" "--stdio" ))
 ;;                     :multi-root t
 ;;                     ;; :initialization-options '(:experimental (:completions (:enable t))) ;; Enable the experimental completion mode
@@ -318,13 +330,13 @@
 
 
 
-;; (use-package lsp-ui
+;; ;; (use-package lsp-ui
 ;;   :ensure t
 ;;   :defer t
 ;;   :custom
-;;   ;; (lsp-ui-sideline-show-diagnostics t)
-;;   ;; (lsp-ui-sideline-show-hover t)
-;;   ;; (lsp-ui-sideline-show-code-actions t)
+;;   (lsp-ui-sideline-show-diagnostics t)
+;;   (lsp-ui-sideline-show-hover t)
+;;   (lsp-ui-sideline-show-code-actions t)
 ;;   (lsp-ui-sideline-update-mode "line")
 ;;   (lsp-ui-doc-enable t)
 ;;   (lsp-ui-doc-show-with-mouse t))
@@ -517,15 +529,15 @@
 ;;;;;;;;;;;;;
 
 
-;; (defun set-exec-path-from-shell-PATH ()
-;;   "Set up Emacs' `exec-path' and PATH environment variable to match that used by the user's shell.
-;; This is particularly useful under Mac OSX, where GUI apps are not started from a shell."
-;;   (interactive)
-;;   (let ((path-from-shell (replace-regexp-in-string "[ \t\n]*$" "" (shell-command-to-string "$SHELL --login -i -c 'echo $PATH'"))))
-;;     (setenv "PATH" path-from-shell)
-;;     (setq exec-path (split-string path-from-shell path-separator))))
+(defun set-exec-path-from-shell-PATH ()
+  "Set up Emacs' `exec-path' and PATH environment variable to match that used by the user's shell.
+This is particularly useful under Mac OSX, where GUI apps are not started from a shell."
+  (interactive)
+  (let ((path-from-shell (replace-regexp-in-string "[ \t\n]*$" "" (shell-command-to-string "$SHELL --login -i -c 'echo $PATH'"))))
+    (setenv "PATH" path-from-shell)
+    (setq exec-path (split-string path-from-shell path-separator))))
 
-;; (set-exec-path-from-shell-PATH)
+(set-exec-path-from-shell-PATH)
 
 ;; CUSTOMS
 (setq custom-file "custom.el")
