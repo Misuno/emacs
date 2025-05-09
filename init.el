@@ -66,23 +66,23 @@
   (format "%s %i" def-font size))
 
 ;; Set font
-(add-to-list 'default-frame-alist `(font . ,(my-font 16)))
+(add-to-list 'default-frame-alist `(font . ,(my-font 13)))
 
-;; (use-package modus-themes
-;;   :ensure t
-;;   :defer nil
-;;   :bind
-;;   ([f4] . modus-themes-toggle)
+(use-package modus-themes
+  :ensure t
+  :defer nil
+  :bind
+  ([f4] . modus-themes-toggle)
   
-;;   :custom
-;;   (modus-themes-italic-constructs t)
-;;   (modus-themes-bold-constructs t)
-;;   (modus-themes-disable-other-themes t)
-;;   (modus-themes-to-toggle '(modus-vivendi modus-operandi))
+  :custom
+  (modus-themes-italic-constructs t)
+  (modus-themes-bold-constructs t)
+  (modus-themes-disable-other-themes t)
+  (modus-themes-to-toggle '(modus-vivendi modus-operandi))
   
-;;   :config
-;;   (mapc #'disable-theme custom-enabled-themes)
-;;   (load-theme 'modus-vivendi :no-confirm))
+  :config
+  (mapc #'disable-theme custom-enabled-themes)
+  (load-theme 'modus-vivendi :no-confirm))
 
 ;; (use-package solarized-theme
 ;;   :ensure t
@@ -90,11 +90,11 @@
 ;;   :init
 ;;   (load-theme 'solarized-dark t))
 
-(use-package zenburn-theme
-  :ensure t
-  :defer nil
-  :config
-  (load-theme 'zenburn t))
+;; (use-package zenburn-theme
+;;   :ensure t
+;;   :defer nil
+;;   :config
+;;   (load-theme 'zenburn t))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; PACKAGES INTERFACE ;;
