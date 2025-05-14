@@ -1,1 +1,0 @@
-("amx-items" "eshell/history" "eshell/lastdir" ".gitignore" "init.el" "tree-sitter/libtree-sitter-clojure.so" "tree-sitter/libtree-sitter-elixir.so" "tree-sitter/libtree-sitter-heex.so" "tree-sitter/libtree-sitter-markdown_inline.so")

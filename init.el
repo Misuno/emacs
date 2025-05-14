@@ -34,7 +34,7 @@
   (save-place-file (concat user-emacs-directory "places"))
   (inhibit-startup-screen t)
   (visible-bell nil)
-  (display-line-numbers-type 'relative) 
+  (display-line-numbers-type 'absolute) 
   ;; Don't use hard tabs
   (indent-tabs-mode nil)
   (tab-width 4)
@@ -48,9 +48,6 @@
                                                "backups"))))
   (auto-save-default nil))
 
-(setq-default line-spacing 0.3)
-
-
 ;; Don't show line numbers in certain modes
 (dolist (mode '(org-mode-hook
                 term-mode-hook
@@ -62,39 +59,19 @@
 ;; (setq def-font "JetBrainsMono Nerd Font Propo")
 ;; (setq def-font "Iosevka Extended")
 
+(setq-default line-spacing 0.1)
+
 (defun my-font (size)
   (format "%s %i" def-font size))
 
 ;; Set font
 (add-to-list 'default-frame-alist `(font . ,(my-font 13)))
 
-(use-package modus-themes
+(use-package zenburn-theme
   :ensure t
   :defer nil
-  :bind
-  ([f4] . modus-themes-toggle)
-  
-  :custom
-  (modus-themes-italic-constructs t)
-  (modus-themes-bold-constructs t)
-  (modus-themes-disable-other-themes t)
-  (modus-themes-to-toggle '(modus-vivendi modus-operandi))
-  
   :config
-  (mapc #'disable-theme custom-enabled-themes)
-  (load-theme 'modus-vivendi :no-confirm))
-
-;; (use-package solarized-theme
-;;   :ensure t
-;;   :defer nil
-;;   :init
-;;   (load-theme 'solarized-dark t))
-
-;; (use-package zenburn-theme
-;;   :ensure t
-;;   :defer nil
-;;   :config
-;;   (load-theme 'zenburn t))
+  (load-theme 'zenburn t))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; PACKAGES INTERFACE ;;
@@ -450,8 +427,10 @@
   (cider-show-error-buffer t)
   (cider-auto-select-error-buffer t)
   (cider-repl-history-file "~/.config/emacs/cider-history")
-  (cider-repl-pop-to-buffer-on-connect t)
-  (cider-repl-wrap-history t))
+  (cider-repl-wrap-history t)
+  (cider-repl-pop-to-buffer-on-connect 'display-only)
+  (cider-repl-buffer-size-limit 100000)
+  (cider-repl-result-prefix "\n"))
 
 
 ;; hydra provides a nice looking menu for commands
