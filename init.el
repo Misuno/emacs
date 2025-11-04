@@ -33,7 +33,7 @@
   ;; keep track of saved places in ~/.emacs.d/places
   (save-place-file (concat user-emacs-directory "places"))
   (inhibit-startup-screen t)
-  (visible-bell nil)
+  (visible-bell t)
   (display-line-numbers-type 'absolute) 
   ;; Don't use hard tabs
   (indent-tabs-mode nil)
@@ -55,7 +55,7 @@
                 eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-(setq def-font "FiraCode Nerd Font Propo")
+(setq def-font "CaskaydiaCove Nerd Font Propo")
 ;; (setq def-font "JetBrainsMono Nerd Font Propo")
 ;; (setq def-font "Iosevka Extended")
 
@@ -252,70 +252,60 @@
         (clojure "https://github.com/sogaiu/tree-sitter-clojure")
         (elixir "https://github.com/elixir-lang/tree-sitter-elixir")))
 
-(use-package eglot
-  :ensure nil
-  :defer nil
-  :bind (("C-S-i" . eglot-format-buffer))
-  :hook ((
-          clojure-ts-mode
-          clojure-mode
-          clojurec-mode
-          clojurescript-mode
-          elixir-ts-mode
-          elixir-mode
-          haskell-mode
-          java-mode scala-mode)
-         . eglot-ensure)
-  :config
-  (setq eglot-server-programs
-      '((clojure-ts-mode . ("clojure-lsp"))))
-  :custom
-  (eglot-autoshutdown t)
-  (eglot-extend-to-xref nil)
-  (eglot-stay-out-of '(yasnippet))
-  (eglot-confirm-server-initiated-edits nil)
-  (setq-default eglot-workspace-configuration
-                '((haskell
-                   (plugin
-                    (stan
-                     (globalOn . :json-false)))))))
-
-;; (use-package lsp-mode
-;;   :ensure t
-;;   :defer t
-;;   :hook ((clojure-ts-mode
+;; (use-package eglot
+;;   :ensure nil
+;;   :defer nil
+;;   :bind (("C-S-i" . eglot-format-buffer))
+;;   :hook ((
 ;;           clojure-ts-mode
 ;;           clojure-mode
 ;;           clojurec-mode
 ;;           clojurescript-mode
-;;           elixir-ts-mode) . lsp)
-;;   :commands tsp
-;;   :bind (:map lsp-mode-map
-;;               ("C-S-i" . lsp-format-buffer))
+;;           elixir-ts-mode
+;;           elixir-mode
+;;           haskell-mode
+;;           java-mode scala-mode)
+;;          . eglot-ensure)
+;;   :config
+;;   (setq eglot-server-programs
+;;       '((clojure-ts-mode . ("clojure-lsp"))))
 ;;   :custom
-;;   (lsp-lens-enable t)
-;;   (lsp-lens-place-position 'above-line)
-;;   (lsp-modeline-code-actions-segments '(count icon name)))
+;;   (eglot-autoshutdown t)
+;;   (eglot-extend-to-xref nil)
+;;   (eglot-stay-out-of '(yasnippet))
+;;   (eglot-confirm-server-initiated-edits nil)
+;;   (setq-default eglot-workspace-configuration
+;;                 '((haskell
+;;                    (plugin
+;;                     (stan
+;;                      (globalOn . :json-false)))))))
 
-;; (with-eval-after-load 'lsp-mode
-;;   (lsp-register-clent
-;;    (make-lsp-client :new-connection (lsp-stdio-connection '("nextls" "--stdio" ))
-;;                     :multi-root t
-;;                     ;; :initialization-options '(:experimental (:completions (:enable t))) ;; Enable the experimental completion mode
-;;                     :activation-fn (lsp-activate-on "elixir")
-;;                     :server-id 'next-ls)))
+(use-package lsp-mode
+  :ensure t
+  :defer t
+  :hook ((clojure-ts-mode
+          clojure-mode
+          clojurec-mode
+          clojurescript-mode
+          elixir-ts-mode) . lsp)
+  :commands tsp
+  :bind (:map lsp-mode-map
+              ("C-S-i" . lsp-format-buffer))
+  :custom
+  (lsp-lens-enable nil)
+  (lsp-lens-place-position 'above-line)
+  (lsp-modeline-code-actions-segments '(count icon name))
+  )
 
-
-
-;; ;; (use-package lsp-ui
+;; (use-package lsp-ui
 ;;   :ensure t
 ;;   :defer t
 ;;   :custom
-;;   (lsp-ui-sideline-show-diagnostics t)
+;;   ;; (lsp-ui-sideline-show-diagnostics t)
 ;;   (lsp-ui-sideline-show-hover t)
-;;   (lsp-ui-sideline-show-code-actions t)
+;;   ;; (lsp-ui-sideline-show-code-actions t)
 ;;   (lsp-ui-sideline-update-mode "line")
-;;   (lsp-ui-doc-enable t)
+;;   ;; (lsp-ui-doc-enable t)
 ;;   (lsp-ui-doc-show-with-mouse t))
 
  
@@ -392,13 +382,11 @@
   :defer t)
 
 ;;;;;;;;;;;;
-;; COJURE ;;
+;; CLOJURE ;;
 ;;;;;;;;;;;;
 
 (use-package clojure-ts-mode
   :ensure t
-  :defer t 
-  :mode "\\.clj\\'"
   :hook (clojure-ts-mode . subword-mode)
   (clojure-ts-mode . paredit-mode)
   :custom
@@ -406,13 +394,12 @@
   :config
   (require 'flycheck-clj-kondo))
 
-(setup (:package clj-refactor)
+(use-package clj-refactor
+  :ensure t
+  :config 
   (cljr-add-keybindings-with-prefix "C-c C-m")
-  (:hook-into clojure-ts-mode))
-
-(setup (:package cider-hydra)
-  (:hook-into clojure-ts-mode))
-
+  :hook
+  (clojure-ts-mode . clj-refactor-mode))
 
 ;; CIDER is a whole interactive development environment for
 ;; Clojure. There is a ton of functionality here, so be sure
@@ -439,7 +426,7 @@
 (use-package cider-hydra
   :defer t 
   :hook
-  (clojure-ts-mode))
+  (clojure-ts-mode . cider-hydra-mode))
 
 ;; additional refactorings for CIDER
 ;; e.g. add missing libspec, extract function, destructure keys
@@ -450,20 +437,12 @@
   :config
   (cljr-add-keybindings-with-prefix "C-c C-m")
   :hook
-  (clojure-ts-mode))
+  (clojure-ts-mode . clj-refactor-mode))
 
 ;; Use clojure mode for other extensions
 ;; (add-to-list 'auto-mode-alist '("\\.boot$" . clojure-mode))
 ;; (add-to-list 'auto-mode-alist '("\\.cljs.*$" . clojure-mode))
 ;; (add-to-list 'auto-mode-alist '("lein-env" . enh-ruby-mode))
-
-(defun cider-refresh ()
-  (interactive)
-  (cider-interactive-eval (format "(user/reset)")))
-
-(defun cider-user-ns ()
-  (interactive)
-  (cider-repl-set-ns "user"))
 
 ;;;;;;;;;;;;;
 ;; HASKELL ;;
@@ -508,15 +487,21 @@
 ;;;;;;;;;;;;;
 
 
-(defun set-exec-path-from-shell-PATH ()
-  "Set up Emacs' `exec-path' and PATH environment variable to match that used by the user's shell.
-This is particularly useful under Mac OSX, where GUI apps are not started from a shell."
-  (interactive)
-  (let ((path-from-shell (replace-regexp-in-string "[ \t\n]*$" "" (shell-command-to-string "$SHELL --login -i -c 'echo $PATH'"))))
-    (setenv "PATH" path-from-shell)
-    (setq exec-path (split-string path-from-shell path-separator))))
+;; (defun set-exec-path-from-shell-PATH ()
+;;   "Set up Emacs' `exec-path' and PATH environment variable to match that used by the user's shell.
+;; This is particularly useful under Mac OSX, where GUI apps are not started from a shell."
+;;   (interactive)
+;;   (let ((path-from-shell (replace-regexp-in-string "[ \t\n]*$" "" (shell-command-to-string "$SHELL --login -i -c 'echo $PATH'"))))
+;;     (setenv "PATH" path-from-shell)
+;;     (setq exec-path (split-string path-from-shell path-separator))))
 
-(set-exec-path-from-shell-PATH)
+;; (set-exec-path-from-shell-PATH)
+
+;; Временно, для диагностики:
+(setenv "PATH" (concat (getenv "PATH") ":" (expand-file-name "~/.nix-profile/bin") ":/run/current-system/sw/bin"))
+(add-to-list 'exec-path (expand-file-name "~/.nix-profile/bin"))
+(add-to-list 'exec-path "/run/current-system/sw/bin")
+
 
 ;; CUSTOMS
 (setq custom-file "custom.el")
