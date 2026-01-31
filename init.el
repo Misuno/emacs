@@ -7,6 +7,9 @@
 (add-to-list 'package-archives '("elpy" . "http://jorgenschaefer.github.io/packages/") t)
 (package-initialize)
 
+;; custom files
+(add-to-list 'load-path (expand-file-name "custom" user-emacs-directory))
+
 ;; setup.el provides a macro for configuration patterns
 ;; it makes package installation and config nice and tidy!
 ;; https://www.emacswiki.org/emacs/SetupEl
@@ -55,9 +58,9 @@
                 eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-(setq def-font "CaskaydiaCove Nerd Font Propo")
-;; (setq def-font "JetBrainsMono Nerd Font Propo")
-;; (setq def-font "Iosevka Extended")
+;; (setq def-font "CaskaydiaCove Nerd Font Propo")
+;; (setq def-font "JetBrainsMono Nerd Font Propo")w
+(setq def-font "Iosevka Nerd Font")
 
 (setq-default line-spacing 0.1)
 
@@ -77,15 +80,23 @@
 ;; PACKAGES INTERFACE ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (use-package evil
-;;   :ensure t
-;;   :defer nil
-;;   :custom
-;;   (evil-undo-system 'undo-redo)
-;;   (evil-bigword "^ \t\r\n")
-;;   (evil-want-keybinding nil)
-;;   :config
-;;   (evil-mode 1))
+(require 'misuno-bindings)
+
+(use-package evil
+  :ensure t
+  :demand t
+  :defer nil
+  :custom
+  (evil-undo-system 'undo-redo)
+  (evil-bigword "^ \t\r\n")
+  ;; (evil-want-keybinding nil)
+  ;; (evil-want-integration t )
+  :config
+  (evil-set-leader 'normal (kbd "SPC"))
+  (evil-set-leader 'normal "," t)
+  (evil-define-key 'normal 'global (kbd "<leader>fs") 'save-buffer)
+  (my-evil-keys)
+  (evil-mode 1))
 
 ;; (use-package evil-collection
 ;;   :after evil
@@ -118,43 +129,6 @@
   (delete-by-moving-to-trash t)
   :init ;; Open dired folders in same buffer
   (put 'dired-find-alternate-file 'disabled nil))
-
-;; DOOM MODELINE
-(use-package doom-modeline
-  :ensure t
-  :defer nil
-  :custom
-  (doom-modeline-height 28)
-  :config
-  (doom-modeline-mode 1))
-
-;; This assumes you've installed the package via MELPA.
-(use-package ligature
-  :ensure t
-  :defer nil
-  :config
-  ;; Enable the "www" ligature in every possible major mode
-  (ligature-set-ligatures 't '("www"))
-  ;; Enable traditional ligature support in eww-mode, if the
-  ;; `variable-pitch' face supports it
-  (ligature-set-ligatures 'eww-mode '("ff" "fi" "ffi"))
-  ;; Enable all Cascadia Code ligatures in programming modes
-  (ligature-set-ligatures 'prog-mode '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
-                                       ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
-                                       "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
-                                       "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
-                                       "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
-                                       "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
-                                       "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
-                                       "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
-                                       ">=" ">>" ">-" "-~" "-|" "->" "-<" "<~" "<*" "<|" "<:"
-                                       "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
-                                       "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
-                                       "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
-                                       "\\\\" "://"))
-  ;; Enables ligature checks globally in all buffers. You can also do it
-  ;; per mode with `ligature-mode'.
-  (global-ligature-mode t))
 
 (use-package which-key
   :ensure t
@@ -202,32 +176,11 @@
   :init
   (ido-mode 1))
 
-(use-package ido-completing-read+
-  :ensure t
-  :defer nil)
-
-(use-package flx-ido
-  :ensure t
-  :defer nil
-  :custom
-  ;; disable ido faces to see flx highlights.
-  (ido-enable-flex-matching t)
-  (ido-use-faces nil)
-  :init
-  (flx-ido-mode 1)
-)
-
 (use-package amx
   :ensure t
   :defer nil
   :init
   (amx-mode))
-
-;; (use-package smex
-;;   :ensure t
-;;   :defer nil
-;;   :bind (("M-x" . smex))
-;;   :config (smex-initialize))
 
 ;;;;;;;;;;;;;;;;
 ;; DEVLOPMENT ;;
@@ -292,6 +245,7 @@
   :bind (:map lsp-mode-map
               ("C-S-i" . lsp-format-buffer))
   :custom
+  (lsp-format-buffer-on-save t)
   (lsp-lens-enable nil)
   (lsp-lens-place-position 'above-line)
   (lsp-modeline-code-actions-segments '(count icon name))
@@ -312,6 +266,7 @@
 ;; Magit - git 
 (use-package magit
   :ensure t
+  :bind ("C-c m" . magit)
   :defer t)
 
 (use-package restclient
@@ -364,19 +319,12 @@
   ("C-c d" . html-div)
   ("C-c s" . html-span))
 
-
-;; (use-package flymake
-;;   :bind
-;;   ("M-n" . flymake-goto-next-error)
-;;   ("M-p" . flymake-goto-prev-error))
-
 (use-package flycheck
   :ensure t
   :defer nil
   :config
   (add-hook 'after-init-hook #'global-flycheck-mode))
 
-;; First install the package:
 (use-package flycheck-clj-kondo
   :ensure t
   :defer t)
@@ -387,7 +335,8 @@
 
 (use-package clojure-ts-mode
   :ensure t
-  :hook (clojure-ts-mode . subword-mode)
+  :hook
+  (clojure-ts-mode . subword-mode)
   (clojure-ts-mode . paredit-mode)
   :custom
   (clojure-ts-toplevel-inside-comment-form t)
@@ -485,26 +434,7 @@
 ;;;;;;;;;;;;;
 ;; CUSTOMS ;;
 ;;;;;;;;;;;;;
-
-
-;; (defun set-exec-path-from-shell-PATH ()
-;;   "Set up Emacs' `exec-path' and PATH environment variable to match that used by the user's shell.
-;; This is particularly useful under Mac OSX, where GUI apps are not started from a shell."
-;;   (interactive)
-;;   (let ((path-from-shell (replace-regexp-in-string "[ \t\n]*$" "" (shell-command-to-string "$SHELL --login -i -c 'echo $PATH'"))))
-;;     (setenv "PATH" path-from-shell)
-;;     (setq exec-path (split-string path-from-shell path-separator))))
-
-;; (set-exec-path-from-shell-PATH)
-
-;; Временно, для диагностики:
-(setenv "PATH" (concat (getenv "PATH") ":" (expand-file-name "~/.nix-profile/bin") ":/run/current-system/sw/bin"))
-(add-to-list 'exec-path (expand-file-name "~/.nix-profile/bin"))
-(add-to-list 'exec-path "/run/current-system/sw/bin")
-
-
-;; CUSTOMS
-(setq custom-file "custom.el")
+(setq custom-file "~/.config/emacs/custom.el")
 (load custom-file)
 
 ;; terminal
@@ -519,7 +449,6 @@
 
 
 ;; KEYBINDINGS
-(global-set-key (kbd "M-/") 'hippie-expand)
 
 ;; dd equivalent
 (defun kill-current-line (&optional n)
@@ -546,7 +475,7 @@
 
 (global-set-key (kbd "C-M-j") 'switch-to-buffer)
 (global-set-key (kbd "C-<tab>") 'next-buffer)
-(global-set-key (kbd "C-<iso-lefttab>") 'previous-buffer)
+(global-set-key (kbd "M-o") 'other-window)
 
 (global-set-key (kbd "<C-return>") 'end-of-line-and-indented-new-line)
 (global-set-key (kbd "<C-S-return>") 'begin-of-line-and-indented-new-line)
@@ -564,33 +493,36 @@
 
 (add-hook 'org-mode-hook  'org-indent-mode)
 
-(global-set-key (kbd "M-o") 'other-window)
-
 ;; LATEX
- ;; Org Export Settings
-      (use-package org
-        :custom
-        (org-export-with-drawers nil)
-        (org-export-with-todo-keywords nil)
-        (org-export-with-broken-links t)
-        (org-export-with-toc nil)
-        (org-export-with-smart-quotes t)
-        (org-export-date-timestamp-format "%d %B %Y"))
+;; Org Export Settings
+(use-package org
+  :ensure nil
+  :defer t
+  :custom
+  (org-export-with-drawers nil)
+  (org-export-with-todo-keywords nil)
+  (org-export-with-broken-links t)
+  (org-export-with-toc nil)
+  (org-export-with-smart-quotes t)
+  (org-export-date-timestamp-format "%d %B %Y"))
 
 ;; LaTeX PDF Export settings
-  (use-package ox-latex
-    :ensure nil
-    :demand t
-    :custom
-    ;; Multiple LaTeX passes for bibliographies
-    (org-latex-pdf-process
-     '("pdflatex -interaction nonstopmode -output-directory %o %f"
-       "bibtex %b"
-       "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-       "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
-    ;; Clean temporary files after export
-    (org-latex-logfiles-extensions
-     (quote ("lof" "lot" "tex~" "aux" "idx" "log" "out"
-             "toc" "nav" "snm" "vrb" "dvi" "fdb_latexmk"
-             "blg" "brf" "fls" "entoc" "ps" "spl" "bbl"
-             "tex" "bcf"))))
+(use-package ox-latex
+  :ensure nil
+  :defer t
+  :demand t
+  :custom
+  ;; Multiple LaTeX passes for bibliographies
+  (org-latex-pdf-process
+   '("pdflatex -interaction nonstopmode -output-directory %o %f"
+     "bibtex %b"
+     "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+     "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+  ;; Clean temporary files after export
+  (org-latex-logfiles-extensions
+   (quote ("lof" "lot" "tex~" "aux" "idx" "log" "out"
+           "toc" "nav" "snm" "vrb" "dvi" "fdb_latexmk"
+           "blg" "brf" "fls" "entoc" "ps" "spl" "bbl"
+           "tex" "bcf"))))
+
+
