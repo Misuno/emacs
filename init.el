@@ -32,12 +32,13 @@
   (save-place-mode 1)
   (global-display-line-numbers-mode)
   (blink-cursor-mode 0)
+  
   :custom
   ;; keep track of saved places in ~/.emacs.d/places
   (save-place-file (concat user-emacs-directory "places"))
   (inhibit-startup-screen t)
   (visible-bell t)
-  (display-line-numbers-type 'absolute) 
+  (display-line-numbers-type 'absolute)
   ;; Don't use hard tabs
   (indent-tabs-mode nil)
   (tab-width 4)
@@ -49,7 +50,21 @@
 ;; http://www.gnu.org/software/emacs/manual/html_node/elisp/Backup-Files.html
   (backup-directory-alist `(("." . ,(concat user-emacs-directory
                                                "backups"))))
-  (auto-save-default nil))
+  (auto-save-default nil)
+
+  ;; --VERTICO--
+  ;; Enable context menu. `vertico-multiform-mode' adds a menu in the minibuffer
+  ;; to switch display modes.
+  (context-menu-mode t)
+  ;; Support opening new minibuffers from inside existing minibuffers.
+  (enable-recursive-minibuffers t)
+  ;; Hide commands in M-x which do not work in the current mode.  Vertico
+  ;; commands are hidden in normal buffers. This setting is useful beyond
+  ;; Vertico.
+  (read-extended-command-predicate #'command-completion-default-include-p)
+  ;; Do not allow the cursor in the minibuffer prompt
+  (minibuffer-prompt-properties
+   '(read-only t cursor-intangible t face minibuffer-prompt)))
 
 ;; Don't show line numbers in certain modes
 (dolist (mode '(org-mode-hook
@@ -80,42 +95,34 @@
 ;; PACKAGES INTERFACE ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(require 'misuno-bindings)
-
 (use-package evil
   :ensure t
-  :demand t
   :defer nil
   :custom
   (evil-undo-system 'undo-redo)
   (evil-bigword "^ \t\r\n")
-  ;; (evil-want-keybinding nil)
-  ;; (evil-want-integration t )
+  (evil-want-keybinding nil)
   :config
-  (evil-set-leader 'normal (kbd "SPC"))
-  (evil-set-leader 'normal "," t)
-  (evil-define-key 'normal 'global (kbd "<leader>fs") 'save-buffer)
-  (my-evil-keys)
   (evil-mode 1))
 
-;; (use-package evil-collection
-;;   :after evil
-;;   :ensure t
-;;   :config
-;;   (evil-collection-init))
+(use-package evil-collection
+  :after evil
+  :ensure t
+  :config
+  (evil-collection-init))
 
-;; (use-package god-mode
-;;   :ensure t
-;;   :defer nil)
+(use-package god-mode
+  :ensure t
+  :defer nil)
 
-;; (use-package evil-god-state
-;;   :ensure t
-;;   :defer nil
-;;   :config
-;;   (evil-define-key 'normal global-map "," 'evil-execute-in-god-state)
-;;   ;; (add-hook 'evil-god-state-entry-hook (lambda () (diminish 'god-local-mode)))
-;;   ;; (add-hook 'evil-god-state-exit-hook (lambda () (diminish-undo 'god-local-mode)))
-;;   (evil-define-key 'god global-map [escape] 'evil-god-state-bail))
+(use-package evil-god-state
+  :ensure t
+  :defer nil
+  :config
+  (evil-define-key 'normal global-map "," 'evil-execute-in-god-state)
+  ;; (add-hook 'evil-god-state-entry-hook (lambda () (diminish 'god-local-mode)))
+  ;; (add-hook 'evil-god-state-exit-hook (lambda () (diminish-undo 'god-local-mode)))
+  (evil-define-key 'god global-map [escape] 'evil-god-state-bail))
 
 
 (use-package dired
@@ -153,8 +160,7 @@
   (projectile-project-search-path '("~/src/" "~/work/" "~/.config"))
   (projectile-enable-caching 'persistent)
   (projectile-known-projects-file "~/.config/emacs/projectile-bookmarks.eld")
-  (projectile-completion-system 'ido)
-  :init
+  ;; (projectile-completion-system ':init
   (projectile-mode 1)
   :bind
   ("<f5>" . projectile--find-file)
@@ -166,21 +172,61 @@
   :defer nil
   :bind ("C-=" . er/expand-region))
 
-(use-package ido
-  :ensure nil
+(use-package vertico
+  :ensure t
   :defer nil
-  :custom
-  (ido-enable-flex-matching t)
-  (ido-everywhere t)
-  (ido-file-extensions-order '(".clj" ".org" ".txt" ".py" ".emacs" ".xml" ".el" ".ini" ".cfg" ".cnf"))
+  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy)
   :init
-  (ido-mode 1))
+  (vertico-mode)
+  (setopt vertico-cycle t))
+
+(use-package vertico-multiform
+  :ensure nil
+  :hook (after-init . vertico-multiform-mode)
+  :init
+  )
 
 (use-package amx
   :ensure t
-  :defer nil
   :init
-  (amx-mode))
+  ;; Must be in the :init section of use-package such that the mode gets
+  ;; enabled right away. Note that this forces loading the package.
+  (marginalia-mode))
+
+;; OLD PACKAGES JUST IN CASE
+
+;; (use-package ido
+;;   :ensure nil
+;;   :defer nil
+;;   :custom
+;;   (ido-enable-flex-matching t)
+;;   (ido-everywhere t)
+;;   (ido-file-extensions-order '(".clj" ".org" ".txt" ".py" ".emacs" ".xml" ".el" ".ini" ".cfg" ".cnf"))
+;;   :init
+;;   (ido-mode 1))
+
+;; (use-package ido-completing-read+
+;;   :ensure t
+;;   :defer nil)
+
+;; (use-package flx-ido
+;;   :ensure t
+;;   :defer nil
+;;   :custom
+;;   ;; disable ido faces to see flx highlights.
+;;   (ido-enable-flex-matching t)
+;;   (ido-use-faces nil)
+;;   :init
+;;   (flx-ido-mode 1)
+;; )
+
+
+
+;; (use-package amx
+;;   :ensure t
+;;   :defer nil
+;;   :init
+;;   (amx-mode))
 
 ;;;;;;;;;;;;;;;;
 ;; DEVLOPMENT ;;
