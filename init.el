@@ -2,19 +2,11 @@
 
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (add-to-list 'package-archives '("elpa" . "https://elpa.gnu.org/packages/") t)
-(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 ;; elpy
 (add-to-list 'package-archives '("elpy" . "http://jorgenschaefer.github.io/packages/") t)
-(package-initialize)
 
 ;; custom files
 (add-to-list 'load-path (expand-file-name "custom" user-emacs-directory))
-
-;; setup.el provides a macro for configuration patterns
-;; it makes package installation and config nice and tidy!
-;; https://www.emacswiki.org/emacs/SetupEl
-(use-package setup
-  :ensure t)
 
 ;;;;;;;;;;;;;;;
 ;; INTERFACE ;;
@@ -27,7 +19,6 @@
   (scroll-bar-mode -1)
   (tooltip-mode -1)
   (set-fringe-mode 10)
-  (defalias 'yes-or-no-p 'y-or-n-p)
   (global-visual-line-mode)
   (save-place-mode 1)
   (global-display-line-numbers-mode)
@@ -46,22 +37,25 @@
   (sh-basic-offset 2)
   (sh-indentation 2)
   ;; Emacs can automatically create backup files. This tells Emacs to
-;; put all backups in ~/.emacs.d/backups. More info:
-;; http://www.gnu.org/software/emacs/manual/html_node/elisp/Backup-Files.html
+  ;; put all backups in ~/.emacs.d/backups. More info:
+  ;; http://www.gnu.org/software/emacs/manual/html_node/elisp/Backup-Files.html
   (backup-directory-alist `(("." . ,(concat user-emacs-directory
-                                               "backups"))))
+                                            "backups"))))
   (auto-save-default nil)
 
   ;; --VERTICO--
   ;; Enable context menu. `vertico-multiform-mode' adds a menu in the minibuffer
   ;; to switch display modes.
   (context-menu-mode t)
+  
   ;; Support opening new minibuffers from inside existing minibuffers.
   (enable-recursive-minibuffers t)
+  
   ;; Hide commands in M-x which do not work in the current mode.  Vertico
   ;; commands are hidden in normal buffers. This setting is useful beyond
   ;; Vertico.
   (read-extended-command-predicate #'command-completion-default-include-p)
+  
   ;; Do not allow the cursor in the minibuffer prompt
   (minibuffer-prompt-properties
    '(read-only t cursor-intangible t face minibuffer-prompt)))
@@ -90,6 +84,23 @@
   :defer nil
   :config
   (load-theme 'zenburn t))
+
+(use-package nerd-icons
+  :ensure t)
+
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1)
+  :custom
+  ;; Использовать именно nerd-icons (так как у тебя Iosevka Nerd Font)
+  (doom-modeline-icon t)
+  (doom-modeline-major-mode-icon t)
+  (doom-modeline-lsp t)
+  (doom-modeline-github t)
+  ;; Высота панели (подбери под себя)
+  (doom-modeline-height 25)
+  ;; Отображать ли номер колонки
+  (doom-modeline-column-zero-based t))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; PACKAGES INTERFACE ;;
@@ -123,7 +134,6 @@
   ;; (add-hook 'evil-god-state-entry-hook (lambda () (diminish 'god-local-mode)))
   ;; (add-hook 'evil-god-state-exit-hook (lambda () (diminish-undo 'god-local-mode)))
   (evil-define-key 'god global-map [escape] 'evil-god-state-bail))
-
 
 (use-package dired
   :ensure nil
@@ -186,47 +196,29 @@
   :init
   )
 
-(use-package amx
+(use-package orderless
   :ensure t
-  :init
-  ;; Must be in the :init section of use-package such that the mode gets
-  ;; enabled right away. Note that this forces loading the package.
-  (marginalia-mode))
+  :custom
+  ;; Настраиваем orderless как основной стиль автодополнения
+  (completion-styles '(orderless basic))
+  (completion-category-defaults nil)
+  ;; Для файлов оставляем partial-completion, чтобы работали пути вроде /u/s/l -> /usr/share/local
+  (completion-category-overrides '((file (styles partial-completion basic))))
+  ) 
 
-;; OLD PACKAGES JUST IN CASE
-
-;; (use-package ido
-;;   :ensure nil
-;;   :defer nil
-;;   :custom
-;;   (ido-enable-flex-matching t)
-;;   (ido-everywhere t)
-;;   (ido-file-extensions-order '(".clj" ".org" ".txt" ".py" ".emacs" ".xml" ".el" ".ini" ".cfg" ".cnf"))
-;;   :init
-;;   (ido-mode 1))
-
-;; (use-package ido-completing-read+
-;;   :ensure t
-;;   :defer nil)
-
-;; (use-package flx-ido
-;;   :ensure t
-;;   :defer nil
-;;   :custom
-;;   ;; disable ido faces to see flx highlights.
-;;   (ido-enable-flex-matching t)
-;;   (ido-use-faces nil)
-;;   :init
-;;   (flx-ido-mode 1)
-;; )
-
-
-
-;; (use-package amx
-;;   :ensure t
-;;   :defer nil
-;;   :init
-;;   (amx-mode))
+(use-package consult
+  :ensure t
+  :bind (("C-x C-b"   . consult-buffer)      ;; Умный поиск по буферам, закладкам и недавним файлам
+         ("C-x r b" . consult-bookmark)    ;; Поиск по закладкам
+         ("M-y"     . consult-yank-pop)    ;; Поиск по истории буфера обмена (kill-ring)
+         ("C-s"     . consult-line)        ;; Поиск по текущему файлу (замена isearch)
+         ("M-g g"   . consult-goto-line)   ;; Переход к строке с превью
+         ("M-g o"   . consult-outline)     ;; Поиск по заголовкам (отлично работает в Org/Markdown)
+         ("M-s r"   . consult-ripgrep))    ;; Быстрый поиск по содержимому файлов в проекте (нужен установленный ripgrep)
+  :config
+  ;; Заменяем стандартный регистр поиска на регистр consult
+  (setq register-preview-delay 0.5
+        register-preview-function #'consult-register-format))
 
 ;;;;;;;;;;;;;;;;
 ;; DEVLOPMENT ;;
@@ -249,66 +241,66 @@
         (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
         (yaml "https://github.com/ikatyang/tree-sitter-yaml")
         (clojure "https://github.com/sogaiu/tree-sitter-clojure")
-        (elixir "https://github.com/elixir-lang/tree-sitter-elixir")))
+        (elixir "https://github.com/elixir-lang/tree-sitter-elixir")
+        (gleam "https://github.com/gleam-lang/tree-sitter-gleam")))
 
-;; (use-package eglot
-;;   :ensure nil
-;;   :defer nil
-;;   :bind (("C-S-i" . eglot-format-buffer))
-;;   :hook ((
-;;           clojure-ts-mode
-;;           clojure-mode
-;;           clojurec-mode
-;;           clojurescript-mode
-;;           elixir-ts-mode
-;;           elixir-mode
-;;           haskell-mode
-;;           java-mode scala-mode)
-;;          . eglot-ensure)
-;;   :config
-;;   (setq eglot-server-programs
-;;       '((clojure-ts-mode . ("clojure-lsp"))))
-;;   :custom
-;;   (eglot-autoshutdown t)
-;;   (eglot-extend-to-xref nil)
-;;   (eglot-stay-out-of '(yasnippet))
-;;   (eglot-confirm-server-initiated-edits nil)
-;;   (setq-default eglot-workspace-configuration
-;;                 '((haskell
-;;                    (plugin
-;;                     (stan
-;;                      (globalOn . :json-false)))))))
+ ;;;;;;;;;;;;;;;;
+;; DIAGNOSTICS;;
+;;;;;;;;;;;;;;;;
 
-(use-package lsp-mode
-  :ensure t
+;; Встроенный линтер (замена Flycheck)
+(use-package flymake
+  :ensure nil ;; Встроен в Emacs
+  :defer t
+  :bind (:map flymake-mode-map
+              ;; Быстрая навигация по ошибкам
+              ("M-n"   . flymake-goto-next-error)
+              ("M-p"   . flymake-goto-prev-error)
+              ;; Открыть красивый список всех ошибок в проекте (аналог flycheck-list-errors)
+              ("C-c e" . flymake-show-project-diagnostics))
+  :custom
+  ;; Скрывать счетчики в mode-line, если ошибок нет (делает строку чище)
+  (flymake-suppress-zero-counters t)
+  ;; Показывать индикаторы ошибок на левом поле
+  (flymake-fringe-indicator-position 'left-fringe))
+
+;;;;;;;;;;;;;;;;
+;; LSP (EGLOT) ;
+;;;;;;;;;;;;;;;;
+
+;; Встроенный LSP-клиент (замена lsp-mode)
+(use-package eglot
+  :ensure nil ;; Встроен в Emacs 29+
   :defer t
   :hook ((clojure-ts-mode
           clojure-mode
-          clojurec-mode
           clojurescript-mode
-          elixir-ts-mode) . lsp)
-  :commands tsp
-  :bind (:map lsp-mode-map
-              ("C-S-i" . lsp-format-buffer))
+          elixir-ts-mode
+          haskell-mode
+          haskell-literate-mode
+          gleam-mode) . eglot-ensure)
+  :bind (:map eglot-mode-map
+              ;; Твоя привычная кнопка для форматирования
+              ("C-S-i" . eglot-format-buffer)
+              ;; Дополнительные полезные биндинги
+              ("C-c r" . eglot-rename)
+              ("C-c a" . eglot-code-actions))
   :custom
-  (lsp-format-buffer-on-save t)
-  (lsp-lens-enable nil)
-  (lsp-lens-place-position 'above-line)
-  (lsp-modeline-code-actions-segments '(count icon name))
-  )
+  ;; Автоматически выключать сервер, когда закрыт последний файл проекта
+  (eglot-autoshutdown t)
+  ;; Интеграция со стандартным механизмом поиска ссылок/определений Emacs (xref)
+  (eglot-extend-to-xref t)
+  ;; Задержка (в секундах) перед отправкой изменений на сервер. 
+  ;; Не дает Emacs тормозить при быстром наборе текста.
+  (eglot-send-changes-idle-time 0.5)
+  ;; Отключаем запись логов общения с сервером для максимальной производительности
+  (eglot-events-buffer-size 0))
 
-;; (use-package lsp-ui
-;;   :ensure t
-;;   :defer t
-;;   :custom
-;;   ;; (lsp-ui-sideline-show-diagnostics t)
-;;   (lsp-ui-sideline-show-hover t)
-;;   ;; (lsp-ui-sideline-show-code-actions t)
-;;   (lsp-ui-sideline-update-mode "line")
-;;   ;; (lsp-ui-doc-enable t)
-;;   (lsp-ui-doc-show-with-mouse t))
+;; Опционально: Отключаем всплывающую документацию Eglot (eldoc) во время набора текста,
+;; если она сильно мельтешит в минибуфере. Документация будет показываться только 
+;; если курсор задержится на функции.
+(setq eldoc-idle-delay 0.5)
 
- 
 ;; Magit - git 
 (use-package magit
   :ensure t
@@ -344,7 +336,9 @@
          go-ts-mode
          go-mode)
   :config
-  (show-paren-mode 1))
+  (show-paren-mode 1)
+  (add-hook 'paredit-mode-hook
+            (lambda () (electric-pair-local-mode -1))))
 
 (use-package electric-pair-mode
   :ensure nil
@@ -365,16 +359,6 @@
   ("C-c d" . html-div)
   ("C-c s" . html-span))
 
-(use-package flycheck
-  :ensure t
-  :defer nil
-  :config
-  (add-hook 'after-init-hook #'global-flycheck-mode))
-
-(use-package flycheck-clj-kondo
-  :ensure t
-  :defer t)
-
 ;;;;;;;;;;;;
 ;; CLOJURE ;;
 ;;;;;;;;;;;;
@@ -386,15 +370,7 @@
   (clojure-ts-mode . paredit-mode)
   :custom
   (clojure-ts-toplevel-inside-comment-form t)
-  :config
-  (require 'flycheck-clj-kondo))
-
-(use-package clj-refactor
-  :ensure t
-  :config 
-  (cljr-add-keybindings-with-prefix "C-c C-m")
-  :hook
-  (clojure-ts-mode . clj-refactor-mode))
+  :config)
 
 ;; CIDER is a whole interactive development environment for
 ;; Clojure. There is a ton of functionality here, so be sure
@@ -405,8 +381,7 @@
   :bind
   ("C-c u" . cider-user-ns)
   ("C-M-r" . cider-refresh)
-  :custom
-  (cider-show-error-buffer t)
+  :custom (cider-show-error-buffer t)
   (cider-auto-select-error-buffer t)
   (cider-repl-history-file "~/.config/emacs/cider-history")
   (cider-repl-wrap-history t)
@@ -443,30 +418,24 @@
 ;; HASKELL ;;
 ;;;;;;;;;;;;;
 
-(use-package lsp-haskell
-  :ensure t
-  :defer t
-  )
-
 (use-package haskell-mode
   :ensure t
   :defer t
-  :hook
-  ((haskell-mode haskell-literate-mode) . lsp)
-  :defer t)
+  :hook ((haskell-mode haskell-literate-mode) . lsp))
 
 ;;;;;;;;;;;
 ;; GLEAM ;;
 ;;;;;;;;;;;
-
 ;; (use-package gleam-mode
-;;   :ensure t
+;; :ensure nil ;; nil, потому что загружаешь из локальной папки
 ;;   :load-path "~/.config/emacs/gleam-mode"
-;;   :bind (:map gleam-mode-map
-;;               ("C-S-i" . gleam-format)))
-
-;; (add-hook 'gleam-mode-hook
-;;           (lambda () (add-hook 'before-save-hook 'gleam-format nil t)))
+;;   :mode "\\.gleam\\'"
+;;   :config
+;;   ;; Включаем интеграцию с Tree-sitter при запуске режима
+;;   (add-hook 'gleam-mode-hook 
+;;             (lambda ()
+;;               (when (treesit-ready-p 'gleam)
+;;                 (treesit-parser-create 'gleam)))))
 
 ;;;;;;;;;
 ;; NIX ;;
@@ -484,8 +453,6 @@
 (load custom-file)
 
 ;; terminal
-(setup (:package eat))
-
 ;; Bash completion
 (use-package bash-completion
   :ensure t
